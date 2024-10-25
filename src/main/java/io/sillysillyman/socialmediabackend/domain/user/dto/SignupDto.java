@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
-public class SignupRequestDto {
+public class SignupDto {
 
     @NotBlank(message = "username must not be blank")
     String username;
