@@ -16,4 +16,7 @@ public class SignupDto {
         message = "password must contain at least one letter, one number, and one special character")
     @Size(min = 8, message = "password must be at least 8 characters long")
     String password;
+
+    @NotBlank(message = "confirm password must not be blank")
+    String confirmPassword;
 }
