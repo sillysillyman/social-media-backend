@@ -40,7 +40,9 @@ public class UserService {
     @Transactional
     public void changePassword(Long userId, ChangePasswordDto changePasswordDto) {
         User user = getById(userId);
-        validateCurrentPasswordMatches(user.getPassword(), changePasswordDto.getCurrentPassword());
+        validateCurrentPasswordMatches(
+            user.getPassword(),
+            passwordEncoder.encode(changePasswordDto.getCurrentPassword()));
         validateNewPasswordIsDifferent(
             changePasswordDto.getCurrentPassword(),
             changePasswordDto.getNewPassword());
@@ -54,7 +56,7 @@ public class UserService {
     }
 
     private void validateCurrentPasswordMatches(String password, String currentPassword) {
-        if (!Objects.equals(password, passwordEncoder.encode(currentPassword))) {
+        if (!Objects.equals(password, currentPassword)) {
             throw new PasswordMismatchException(UserErrorCode.PASSWORD_MISMATCH);
         }
     }
