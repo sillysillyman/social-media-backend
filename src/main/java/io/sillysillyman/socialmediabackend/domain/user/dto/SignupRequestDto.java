@@ -12,7 +12,7 @@ public class SignupRequestDto {
     String username;
 
     @NotBlank(message = "password must not be blank")
-    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$",
+    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?])$",
         message = "password must contain at least one letter, one number, and one special character")
     @Size(min = 8, message = "password must be at least 8 characters long")
     String password;
