@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j(topic = "UserCleanupScheduler")
+@Slf4j(topic = "UserScheduler")
 @Component
 @RequiredArgsConstructor
 public class UserScheduler {
