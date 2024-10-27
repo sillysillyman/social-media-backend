@@ -55,6 +55,12 @@ public class UserService {
         user.changePassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
     }
 
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = getById(userId);
+        user.delete();
+    }
+
     private void validateUsernameUniqueness(String username) {
         if (userRepository.existsByUsername(username)) {
             throw new DuplicateUsernameException(UserErrorCode.DUPLICATE_USERNAME);
