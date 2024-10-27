@@ -4,5 +4,5 @@ import java.time.Instant;
 
 public interface UserRepositoryCustom {
 
-    long deleteOlderThan(Instant instant);
+    long deleteByDeletedAtNotNullAndBefore(Instant instant);
 }

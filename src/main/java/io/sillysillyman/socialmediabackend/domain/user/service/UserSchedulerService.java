@@ -14,6 +14,6 @@ public class UserSchedulerService {
 
     @Transactional
     public long deleteOldSoftDeletedUsers(Instant instant) {
-        return userRepository.deleteOlderThan(instant);
+        return userRepository.deleteByDeletedAtNotNullAndBefore(instant);
     }
 }

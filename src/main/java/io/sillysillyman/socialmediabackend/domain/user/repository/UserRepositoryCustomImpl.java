@@ -12,9 +12,9 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public long deleteOlderThan(Instant date) {
+    public long deleteByDeletedAtNotNullAndBefore(Instant instant) {
         return jpaQueryFactory.delete(qUser)
-            .where(qUser.deletedAt.isNotNull().and(qUser.deletedAt.loe(date)))
+            .where(qUser.deletedAt.isNotNull().and(qUser.deletedAt.loe(instant)))
             .execute();
     }
 }
