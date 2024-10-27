@@ -1,6 +1,6 @@
 package io.sillysillyman.socialmediabackend.domain.user;
 
-import io.sillysillyman.socialmediabackend.domain.user.repository.UserRepository;
+import io.sillysillyman.socialmediabackend.domain.user.service.UserSchedulerService;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
@@ -14,13 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserScheduler {
 
-    private final UserRepository userRepository;
+    private final UserSchedulerService userSchedulerService;
 
     @Transactional
     @Scheduled(cron = "0 0 0 * * ?")
-    public void removeOldDeletedUsers() {
+    public void deleteOldSoftDeletedUsers() {
         Instant sixMonthsAgo = Instant.now().minus(6, ChronoUnit.MONTHS);
-        long deletedCount = userRepository.deleteOlderThan(sixMonthsAgo);
+        long deletedCount = userSchedulerService.deleteOldSoftDeletedUsers(sixMonthsAgo);
         log.info("Completed cleanup of old deleted users. Total deleted: {}", deletedCount);
     }
 }
