@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +24,8 @@ public class User extends BaseEntity {
 
     private String password;
 
+    private Instant deletedAt;
+
     @Builder
     public User(String username, String password) {
         this.username = username;
@@ -31,5 +34,9 @@ public class User extends BaseEntity {
 
     public void changePassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    public void delete() {
+        this.deletedAt = Instant.now();
     }
 }
