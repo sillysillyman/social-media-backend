@@ -38,6 +38,11 @@ public class UserService {
         return UserDto.from(user);
     }
 
+    @Transactional(readOnly = true)
+    public UserDto getUser(Long userId) {
+        return UserDto.from(getById(userId));
+    }
+
     @Transactional
     public void changePassword(Long userId, ChangePasswordDto changePasswordDto) {
         User user = getById(userId);
