@@ -14,6 +14,8 @@ import io.sillysillyman.socialmediabackend.domain.user.exception.detail.Duplicat
 import io.sillysillyman.socialmediabackend.domain.user.exception.detail.PasswordMismatchException;
 import io.sillysillyman.socialmediabackend.domain.user.exception.detail.SamePasswordException;
 import io.sillysillyman.socialmediabackend.domain.user.exception.detail.UserNotFoundException;
+import io.sillysillyman.socialmediabackend.domain.user.repository.UserRepository;
+import io.sillysillyman.socialmediabackend.domain.user.service.UserService;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

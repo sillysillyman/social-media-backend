@@ -5,6 +5,7 @@ import io.sillysillyman.socialmediabackend.common.dto.SingleItemBody;
 import io.sillysillyman.socialmediabackend.domain.user.dto.ChangePasswordDto;
 import io.sillysillyman.socialmediabackend.domain.user.dto.SignupDto;
 import io.sillysillyman.socialmediabackend.domain.user.dto.UserDto;
+import io.sillysillyman.socialmediabackend.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
