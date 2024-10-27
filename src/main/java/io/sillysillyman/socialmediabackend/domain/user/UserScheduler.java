@@ -1,5 +1,6 @@
 package io.sillysillyman.socialmediabackend.domain.user;
 
+import io.sillysillyman.socialmediabackend.domain.user.repository.UserRepository;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j(topic = "UserCleanupScheduler")
 @Component
 @RequiredArgsConstructor
-public class UserCleanupScheduler {
+public class UserScheduler {
 
     private final UserRepository userRepository;
 
