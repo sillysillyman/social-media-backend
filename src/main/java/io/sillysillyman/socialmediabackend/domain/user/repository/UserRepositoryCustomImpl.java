@@ -1,6 +1,7 @@
-package io.sillysillyman.socialmediabackend.domain.user;
+package io.sillysillyman.socialmediabackend.domain.user.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import io.sillysillyman.socialmediabackend.domain.user.QUser;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 

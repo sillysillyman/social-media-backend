@@ -1,5 +1,6 @@
-package io.sillysillyman.socialmediabackend.domain.user;
+package io.sillysillyman.socialmediabackend.domain.user.repository;
 
+import io.sillysillyman.socialmediabackend.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

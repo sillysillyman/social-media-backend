@@ -1,5 +1,6 @@
-package io.sillysillyman.socialmediabackend.domain.user;
+package io.sillysillyman.socialmediabackend.domain.user.service;
 
+import io.sillysillyman.socialmediabackend.domain.user.User;
 import io.sillysillyman.socialmediabackend.domain.user.dto.ChangePasswordDto;
 import io.sillysillyman.socialmediabackend.domain.user.dto.SignupDto;
 import io.sillysillyman.socialmediabackend.domain.user.dto.UserDto;
@@ -8,6 +9,7 @@ import io.sillysillyman.socialmediabackend.domain.user.exception.detail.Duplicat
 import io.sillysillyman.socialmediabackend.domain.user.exception.detail.PasswordMismatchException;
 import io.sillysillyman.socialmediabackend.domain.user.exception.detail.SamePasswordException;
 import io.sillysillyman.socialmediabackend.domain.user.exception.detail.UserNotFoundException;
+import io.sillysillyman.socialmediabackend.domain.user.repository.UserRepository;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

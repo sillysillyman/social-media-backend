@@ -1,4 +1,4 @@
-package io.sillysillyman.socialmediabackend.domain.user;
+package io.sillysillyman.socialmediabackend.domain.user.repository;
 
 import java.time.Instant;
 
