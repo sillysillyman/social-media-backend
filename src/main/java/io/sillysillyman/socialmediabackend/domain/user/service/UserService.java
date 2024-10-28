@@ -29,6 +29,12 @@ public class UserService {
             .orElseThrow(() -> new UserNotFoundException(UserErrorCode.USER_NOT_FOUND));
     }
 
+    @Transactional(readOnly = true)
+    public User getByUsername(String username) {
+        return userRepository.findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException(UserErrorCode.USER_NOT_FOUND));
+    }
+
     @Transactional
     public UserDto signup(SignupDto signupDto) {
         validateUsernameUniqueness(signupDto.getUsername());
