@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -15,7 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 @EnableMethodSecurity
 @EnableWebSecurity
-public class WebSecurityConfig {
+public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -26,9 +27,11 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
             .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(it -> it.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(it -> it
                 .requestMatchers("**").permitAll()
                 .anyRequest().authenticated())
-            .formLogin(AbstractHttpConfigurer::disable).build();
+            .formLogin(AbstractHttpConfigurer::disable)
+            .build();
     }
 }
