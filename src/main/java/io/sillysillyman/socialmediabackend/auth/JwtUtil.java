@@ -47,19 +47,24 @@ public class JwtUtil {
     }
 
     public boolean isTokenValid(String token) {
+        if (token == null) {
+            log.error("Jwt token is null");
+            return false;
+        }
+
         try {
             getClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT token: The token has expired. Token: {}", token);
+            log.info("Expired JWT token: The token has expired", e);
         } catch (UnsupportedJwtException e) {
-            log.error("Unsupported JWT token: The token format is not supported. Token: {}", token);
+            log.error("Unsupported JWT token: The token format is not supported", e);
         } catch (MalformedJwtException e) {
-            log.error("Malformed JWT token: The token format is invalid. Token: {}", token);
+            log.error("Malformed JWT token: The token format is invalid", e);
         } catch (SignatureException e) {
-            log.error("Invalid JWT signature: The token signature is invalid. Token: {}", token);
+            log.error("Invalid JWT signature: The token signature is invalid", e);
         } catch (IllegalArgumentException e) {
-            log.error("Invalid JWT token: The token is either null or empty. Token: {}", token);
+            log.error("Invalid JWT token: The token is either null or empty", e);
         }
         return false;
     }
