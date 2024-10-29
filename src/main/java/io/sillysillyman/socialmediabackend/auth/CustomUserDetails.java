@@ -3,14 +3,10 @@ package io.sillysillyman.socialmediabackend.auth;
 import io.sillysillyman.socialmediabackend.domain.user.User;
 import java.util.Collection;
 import java.util.Collections;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@Getter
-@RequiredArgsConstructor
 public record CustomUserDetails(User user) implements UserDetails {
 
     @Override
@@ -25,7 +21,7 @@ public record CustomUserDetails(User user) implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getPassword();
+        return user.getUsername();
     }
 
     @Override
