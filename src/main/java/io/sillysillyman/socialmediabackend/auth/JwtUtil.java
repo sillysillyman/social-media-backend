@@ -9,7 +9,9 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import io.sillysillyman.socialmediabackend.domain.user.UserRole;
+import jakarta.annotation.PostConstruct;
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +29,13 @@ public class JwtUtil {
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
 
     private final JwtProperties jwtProperties;
-    private final Key key = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
+    private Key key;
+
+    @PostConstruct
+    void init() {
+        byte[] bytes = Base64.getDecoder().decode(jwtProperties.getSecret());
+        this.key = Keys.hmacShaKeyFor(bytes);
+    }
 
     public String generateAccessToken(String username, UserRole role) {
         return BEARER_PREFIX +
