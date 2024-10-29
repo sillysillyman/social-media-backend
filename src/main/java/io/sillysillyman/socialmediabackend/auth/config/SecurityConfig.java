@@ -1,5 +1,9 @@
-package io.sillysillyman.socialmediabackend.auth;
+package io.sillysillyman.socialmediabackend.auth.config;
 
+import io.sillysillyman.socialmediabackend.auth.JwtAccessDeniedHandler;
+import io.sillysillyman.socialmediabackend.auth.JwtAuthenticationEntryPoint;
+import io.sillysillyman.socialmediabackend.auth.JwtAuthenticationFilter;
+import io.sillysillyman.socialmediabackend.auth.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
