@@ -1,5 +1,6 @@
 package io.sillysillyman.socialmediabackend.auth;
 
+import io.sillysillyman.socialmediabackend.auth.constant.JwtConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String extractToken(HttpServletRequest request) {
-        String token = request.getHeader(JwtUtil.AUTHORIZATION_HEADER);
+        String token = request.getHeader(JwtConstants.AUTHORIZATION_HEADER);
         if (StringUtils.hasText(token)) {
             return jwtUtil.resolveToken(token);
         }
