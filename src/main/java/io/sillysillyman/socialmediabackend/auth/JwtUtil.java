@@ -6,12 +6,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import io.sillysillyman.socialmediabackend.auth.properties.JwtProperties;
 import io.sillysillyman.socialmediabackend.domain.user.UserRole;
-import jakarta.annotation.PostConstruct;
 import java.security.Key;
-import java.util.Base64;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,20 +20,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtUtil {
 
-    public static final String AUTHORIZATION_HEADER = "Authorization";
-    public static final String REFRESH_HEADER = "Refresh";
-    public static final String AUTHORIZATION_KEY = "auth";
-    public static final String BEARER_PREFIX = "Bearer ";
+    private static final String AUTHORIZATION_KEY = "auth";
+    private static final String BEARER_PREFIX = "Bearer ";
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
 
     private final JwtProperties jwtProperties;
-    private Key key;
-
-    @PostConstruct
-    void init() {
-        byte[] bytes = Base64.getDecoder().decode(jwtProperties.getSecret());
-        this.key = Keys.hmacShaKeyFor(bytes);
-    }
+    private final Key key;
 
     public String generateAccessToken(String username, UserRole role) {
         return BEARER_PREFIX +
@@ -87,10 +77,11 @@ public class JwtUtil {
 
     private String generateToken(String username, UserRole role, long expiration) {
         Date now = new Date();
+        Claims claims = Jwts.claims().setSubject(username);
+        claims.put(AUTHORIZATION_KEY, role.getAuthority());
 
         return Jwts.builder()
-            .setSubject(username)
-            .claim(AUTHORIZATION_KEY, role.getAuthority())
+            .setClaims(claims)
             .setIssuedAt(now)
             .setExpiration(new Date(now.getTime() + expiration))
             .signWith(key, SIGNATURE_ALGORITHM)
