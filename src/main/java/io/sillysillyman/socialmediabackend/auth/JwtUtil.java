@@ -77,10 +77,6 @@ public class JwtUtil {
         return false;
     }
 
-    public boolean isTokenExpired(String token) {
-        return getClaims(token).getExpiration().before(new Date());
-    }
-
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
             .setSigningKey(key)
