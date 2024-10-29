@@ -1,6 +1,6 @@
 package io.sillysillyman.socialmediabackend.auth;
 
-import io.sillysillyman.socialmediabackend.auth.constant.JwtConstants;
+import io.sillysillyman.socialmediabackend.auth.constants.JwtConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

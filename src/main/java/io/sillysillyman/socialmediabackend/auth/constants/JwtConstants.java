@@ -1,4 +1,4 @@
-package io.sillysillyman.socialmediabackend.auth.constant;
+package io.sillysillyman.socialmediabackend.auth.constants;
 
 public final class JwtConstants {
 
