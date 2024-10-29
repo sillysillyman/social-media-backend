@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final JwtUtil jwtUtil;
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public TokenDto login(LoginDto loginDto) {
