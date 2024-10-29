@@ -50,7 +50,7 @@ public class AuthService {
 
     @Transactional
     public TokenDto refresh(String refreshToken) {
-        // TODO: 토큰 제발급 로직
+        // TODO: 토큰 재발급 로직
         return null;
     }
 }
