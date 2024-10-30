@@ -51,6 +51,11 @@ public class AuthService {
         }
     }
 
+    public void logout(String username) {
+        refreshTokenRepository.deleteByUsername(username);
+        log.info("User logged out successfully: {}", username);
+    }
+
     @Transactional
     public TokenDto refresh(String refreshToken) {
         // TODO: 토큰 재발급 로직
