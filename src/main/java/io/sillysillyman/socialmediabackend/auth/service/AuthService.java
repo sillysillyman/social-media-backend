@@ -4,6 +4,7 @@ import io.sillysillyman.socialmediabackend.auth.CustomUserDetails;
 import io.sillysillyman.socialmediabackend.auth.JwtUtil;
 import io.sillysillyman.socialmediabackend.auth.dto.LoginDto;
 import io.sillysillyman.socialmediabackend.auth.dto.TokenDto;
+import io.sillysillyman.socialmediabackend.auth.exception.AuthErrorCode;
 import io.sillysillyman.socialmediabackend.auth.exception.detail.AuthenticationFailedException;
 import io.sillysillyman.socialmediabackend.auth.repository.RefreshTokenRepository;
 import java.util.Collection;
@@ -14,6 +15,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +39,7 @@ public class AuthService {
                 )
             );
 
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            UserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             String username = userDetails.getUsername();
             Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 
@@ -47,12 +50,20 @@ public class AuthService {
 
             return TokenDto.of(accessToken, refreshToken);
         } catch (AuthenticationException e) {
-            throw new AuthenticationFailedException("Invalid username or password", e);
+            throw new AuthenticationFailedException(
+                AuthErrorCode.AUTHENTICATION_FAILED.getMessage(), e);
         }
     }
 
-    public void logout(String username) {
+    public void logout() {
+        UserDetails userDetails =
+            (CustomUserDetails) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+        String username = userDetails.getUsername();
         refreshTokenRepository.deleteByUsername(username);
+        SecurityContextHolder.clearContext();
         log.info("User logged out successfully: {}", username);
     }
 
