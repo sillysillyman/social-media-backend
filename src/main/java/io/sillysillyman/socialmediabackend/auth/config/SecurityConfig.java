@@ -1,9 +1,9 @@
 package io.sillysillyman.socialmediabackend.auth.config;
 
-import io.sillysillyman.socialmediabackend.auth.JwtAccessDeniedHandler;
-import io.sillysillyman.socialmediabackend.auth.JwtAuthenticationEntryPoint;
-import io.sillysillyman.socialmediabackend.auth.JwtAuthenticationFilter;
-import io.sillysillyman.socialmediabackend.auth.JwtUtil;
+import io.sillysillyman.socialmediabackend.auth.filter.JwtAuthenticationFilter;
+import io.sillysillyman.socialmediabackend.auth.handler.JwtAccessDeniedHandler;
+import io.sillysillyman.socialmediabackend.auth.handler.JwtAuthenticationEntryPoint;
+import io.sillysillyman.socialmediabackend.auth.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,8 +26,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 

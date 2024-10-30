@@ -1,7 +1,6 @@
 package io.sillysillyman.socialmediabackend.auth.service;
 
 import io.sillysillyman.socialmediabackend.auth.CustomUserDetails;
-import io.sillysillyman.socialmediabackend.auth.JwtUtil;
 import io.sillysillyman.socialmediabackend.auth.dto.LoginDto;
 import io.sillysillyman.socialmediabackend.auth.dto.TokenDto;
 import io.sillysillyman.socialmediabackend.auth.exception.AuthErrorCode;
@@ -10,6 +9,7 @@ import io.sillysillyman.socialmediabackend.auth.exception.detail.AuthenticationF
 import io.sillysillyman.socialmediabackend.auth.exception.detail.InvalidTokenException;
 import io.sillysillyman.socialmediabackend.auth.exception.detail.TokenNotFoundException;
 import io.sillysillyman.socialmediabackend.auth.repository.RefreshTokenRepository;
+import io.sillysillyman.socialmediabackend.auth.util.JwtUtil;
 import java.util.Collection;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +28,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
     public TokenDto login(LoginDto loginDto) {
