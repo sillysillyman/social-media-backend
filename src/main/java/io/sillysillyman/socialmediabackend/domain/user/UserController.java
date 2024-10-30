@@ -44,12 +44,12 @@ public class UserController {
         @Valid @RequestBody ChangePasswordDto changePasswordDto
     ) {
         userService.changePassword(userId, changePasswordDto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{userId}/withdrawal")
-    ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
+    ResponseEntity<Void> withdraw(@PathVariable Long userId) {
         userService.deleteUser(userId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }
