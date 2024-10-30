@@ -8,11 +8,12 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import io.sillysillyman.socialmediabackend.auth.properties.JwtProperties;
-import io.sillysillyman.socialmediabackend.domain.user.UserRole;
 import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -27,13 +28,19 @@ public class JwtUtil {
     private final JwtProperties jwtProperties;
     private final Key key;
 
-    public String generateAccessToken(String username, UserRole role) {
+    public String generateAccessToken(
+        String username,
+        Collection<? extends GrantedAuthority> authorities
+    ) {
         return BEARER_PREFIX +
-            generateToken(username, role, jwtProperties.getAccessTokenExpiration());
+            generateToken(username, authorities, jwtProperties.getAccessTokenExpiration());
     }
 
-    public String generateRefreshToken(String username, UserRole role) {
-        return generateToken(username, role, jwtProperties.getRefreshTokenExpiration());
+    public String generateRefreshToken(
+        String username,
+        Collection<? extends GrantedAuthority> authorities
+    ) {
+        return generateToken(username, authorities, jwtProperties.getRefreshTokenExpiration());
     }
 
     public String extractUsername(String token) {
@@ -75,10 +82,19 @@ public class JwtUtil {
             .getBody();
     }
 
-    private String generateToken(String username, UserRole role, long expiration) {
+    private String generateToken(
+        String username,
+        Collection<? extends GrantedAuthority> authorities,
+        long expiration
+    ) {
         Date now = new Date();
         Claims claims = Jwts.claims().setSubject(username);
-        claims.put(AUTHORIZATION_KEY, role.getAuthority());
+        claims.put(
+            AUTHORIZATION_KEY,
+            authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList()
+        );
 
         return Jwts.builder()
             .setClaims(claims)
