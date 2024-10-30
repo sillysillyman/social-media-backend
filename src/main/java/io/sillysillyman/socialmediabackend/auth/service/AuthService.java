@@ -5,25 +5,27 @@ import io.sillysillyman.socialmediabackend.auth.JwtUtil;
 import io.sillysillyman.socialmediabackend.auth.dto.LoginDto;
 import io.sillysillyman.socialmediabackend.auth.dto.TokenDto;
 import io.sillysillyman.socialmediabackend.auth.exception.detail.AuthenticationFailedException;
-import io.sillysillyman.socialmediabackend.domain.user.User;
+import io.sillysillyman.socialmediabackend.auth.repository.RefreshTokenRepository;
+import java.util.Collection;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
+@Slf4j(topic = "AuthService")
 @Service
 public class AuthService {
 
     private final JwtUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final AuthenticationManager authenticationManager;
-    private final PasswordEncoder passwordEncoder;
 
-    @Transactional
     public TokenDto login(LoginDto loginDto) {
 
         try {
@@ -35,12 +37,13 @@ public class AuthService {
             );
 
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            User user = userDetails.user();
+            String username = userDetails.getUsername();
+            Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 
-            String accessToken = jwtUtil.generateAccessToken(user.getUsername(), user.getRole());
-            String refreshToken = jwtUtil.generateRefreshToken(user.getUsername(), user.getRole());
+            String accessToken = jwtUtil.generateAccessToken(username, authorities);
+            String refreshToken = jwtUtil.generateRefreshToken(username, authorities);
 
-            // TODO: Redis 활용하여 refresh 토큰 저장 로직
+            refreshTokenRepository.save(username, refreshToken);
 
             return TokenDto.of(accessToken, refreshToken);
         } catch (AuthenticationException e) {
