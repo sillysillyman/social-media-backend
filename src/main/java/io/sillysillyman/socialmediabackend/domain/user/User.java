@@ -36,9 +36,10 @@ public class User extends BaseEntity {
     private Instant deletedAt;
 
     @Builder
-    public User(String username, String password) {
+    public User(String username, String password, UserRole role) {
         this.username = username;
         this.password = password;
+        this.role = role;
     }
 
     public void changePassword(String newPassword) {
