@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -17,24 +18,36 @@ public class RefreshTokenRepository {
     private final StringRedisTemplate stringRedisTemplate;
 
     public void save(String username, String refreshToken) {
-        stringRedisTemplate.opsForValue().set(
-            generateKey(username),
-            refreshToken,
-            Duration.ofMillis(redisProperties.getRefreshToken().getExpiration())
-        );
-        log.debug("Saved refresh token for user: {}", username);
+        try {
+            stringRedisTemplate.opsForValue().set(
+                generateKey(username),
+                refreshToken,
+                Duration.ofMillis(redisProperties.getRefreshToken().getExpiration())
+            );
+            log.debug("Saved refresh token for user: {}", username);
+        } catch (RedisConnectionFailureException e) {
+            log.error("Failed to save refresh token for user: {}", username, e);
+        }
     }
 
     public Optional<String> findByUsername(String username) {
-        String key = generateKey(username);
-        String token = stringRedisTemplate.opsForValue().get(key);
-        return Optional.ofNullable(token);
+        try {
+            String key = generateKey(username);
+            String token = stringRedisTemplate.opsForValue().get(key);
+            return Optional.ofNullable(token);
+        } catch (RedisConnectionFailureException e) {
+            log.error("Failed to retrieve refresh token for user: {}", username, e);
+        }
     }
 
     public void deleteByUsername(String username) {
-        String key = generateKey(username);
-        stringRedisTemplate.delete(key);
-        log.debug("Deleted refresh token for user: {}", username);
+        try {
+            String key = generateKey(username);
+            stringRedisTemplate.delete(key);
+            log.debug("Deleted refresh token for user: {}", username);
+        } catch (RedisConnectionFailureException e) {
+            log.error("Failed to delete refresh token for user: {}", username, e);
+        }
     }
 
     private String generateKey(String username) {
