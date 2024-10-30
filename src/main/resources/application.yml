@@ -11,8 +11,17 @@ spring:
       ddl-auto: update
     show-sql: true
     open-in-view: false
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD:}  # 비밀번호 설정된 경우
 
 jwt:
   secret: ${JWT_SECRET}
   access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
   refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+
+redis:
+  refresh-token:
+    prefix: "RT:"
+    expiration: 1209600000
