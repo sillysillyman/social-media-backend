@@ -1,5 +1,9 @@
 package io.sillysillyman.socialmediabackend.auth.repository;
 
+import io.sillysillyman.socialmediabackend.auth.exception.TokenStorageErrorCode;
+import io.sillysillyman.socialmediabackend.auth.exception.detail.TokenDeleteFailedException;
+import io.sillysillyman.socialmediabackend.auth.exception.detail.TokenRetrieveFailedException;
+import io.sillysillyman.socialmediabackend.auth.exception.detail.TokenSaveFailedException;
 import io.sillysillyman.socialmediabackend.common.properties.RedisProperties;
 import java.time.Duration;
 import java.util.Optional;
@@ -27,6 +31,7 @@ public class RefreshTokenRepository {
             log.debug("Saved refresh token for user: {}", username);
         } catch (RedisConnectionFailureException e) {
             log.error("Failed to save refresh token for user: {}", username, e);
+            throw new TokenSaveFailedException(TokenStorageErrorCode.REFRESH_TOKEN_SAVE_FAILED, e);
         }
     }
 
@@ -37,6 +42,10 @@ public class RefreshTokenRepository {
             return Optional.ofNullable(token);
         } catch (RedisConnectionFailureException e) {
             log.error("Failed to retrieve refresh token for user: {}", username, e);
+            throw new TokenRetrieveFailedException(
+                TokenStorageErrorCode.REFRESH_TOKEN_RETRIEVE_FAILED,
+                e
+            );
         }
     }
 
@@ -47,6 +56,10 @@ public class RefreshTokenRepository {
             log.debug("Deleted refresh token for user: {}", username);
         } catch (RedisConnectionFailureException e) {
             log.error("Failed to delete refresh token for user: {}", username, e);
+            throw new TokenDeleteFailedException(
+                TokenStorageErrorCode.REFRESH_TOKEN_DELETE_FAILED,
+                e
+            );
         }
     }
 
