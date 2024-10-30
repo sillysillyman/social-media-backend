@@ -1,6 +1,7 @@
 package io.sillysillyman.socialmediabackend.domain.user.service;
 
 import io.sillysillyman.socialmediabackend.domain.user.User;
+import io.sillysillyman.socialmediabackend.domain.user.UserRole;
 import io.sillysillyman.socialmediabackend.domain.user.dto.ChangePasswordDto;
 import io.sillysillyman.socialmediabackend.domain.user.dto.SignupDto;
 import io.sillysillyman.socialmediabackend.domain.user.dto.UserDto;
@@ -42,6 +43,7 @@ public class UserService {
         User user = User.builder()
             .username(signupDto.getUsername())
             .password(passwordEncoder.encode(signupDto.getPassword()))
+            .role(UserRole.USER)
             .build();
         userRepository.save(user);
         return UserDto.from(user);

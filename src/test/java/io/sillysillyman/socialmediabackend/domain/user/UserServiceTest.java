@@ -39,7 +39,7 @@ public class UserServiceTest {
 
     @Test
     void getById_UserExists_ReturnsUser() {
-        User user = new User("username", "encodedPassword1!");
+        User user = new User("username", "encodedPassword1!", UserRole.USER);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         User foundUser = userService.getById(1L);
@@ -86,7 +86,7 @@ public class UserServiceTest {
 
     @Test
     void changePassword_SuccessfulChange() {
-        User user = new User("username", "encodedOldPassword1!");
+        User user = new User("username", "encodedOldPassword1!", UserRole.USER);
         ChangePasswordDto changePasswordDto = createChangePasswordDto("oldPassword1!",
             "newPassword1!");
 
@@ -104,7 +104,7 @@ public class UserServiceTest {
 
     @Test
     void changePassword_IncorrectCurrentPassword_ThrowsPasswordMismatchException() {
-        User user = new User("username", "encodedOldPassword1!");
+        User user = new User("username", "encodedOldPassword1!", UserRole.USER);
         ChangePasswordDto changePasswordDto = createChangePasswordDto("incorrectPassword",
             "newPassword1!");
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -120,7 +120,7 @@ public class UserServiceTest {
 
     @Test
     void changePassword_SameNewPassword_ThrowsSamePasswordException() {
-        User user = new User("username", "encodedOldPassword1!");
+        User user = new User("username", "encodedOldPassword1!", UserRole.USER);
         ChangePasswordDto changePasswordDto = createChangePasswordDto("oldPassword1!",
             "oldPassword1!");
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
