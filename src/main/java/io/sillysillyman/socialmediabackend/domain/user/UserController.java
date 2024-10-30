@@ -1,6 +1,7 @@
 package io.sillysillyman.socialmediabackend.domain.user;
 
 
+import io.sillysillyman.socialmediabackend.auth.CustomUserDetails;
 import io.sillysillyman.socialmediabackend.common.dto.SingleItemBody;
 import io.sillysillyman.socialmediabackend.domain.user.dto.ChangePasswordDto;
 import io.sillysillyman.socialmediabackend.domain.user.dto.SignupDto;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,18 +40,18 @@ public class UserController {
         return ResponseEntity.ok(SingleItemBody.from(userService.getUser(userId)));
     }
 
-    @PutMapping("/{userId}/password")
+    @PutMapping("/me/password")
     ResponseEntity<Void> changePassword(
-        @PathVariable Long userId,
-        @Valid @RequestBody ChangePasswordDto changePasswordDto
+        @Valid @RequestBody ChangePasswordDto changePasswordDto,
+        @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        userService.changePassword(userId, changePasswordDto);
+        userService.changePassword(changePasswordDto, userDetails.user());
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{userId}/withdrawal")
-    ResponseEntity<Void> withdraw(@PathVariable Long userId) {
-        userService.deleteUser(userId);
+    @DeleteMapping("/me")
+    ResponseEntity<Void> withdraw(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        userService.withdraw(userDetails.user());
         return ResponseEntity.noContent().build();
     }
 }
