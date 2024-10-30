@@ -1,4 +1,4 @@
-package io.sillysillyman.socialmediabackend.auth;
+package io.sillysillyman.socialmediabackend.auth.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
