@@ -5,9 +5,13 @@ import io.sillysillyman.socialmediabackend.auth.JwtUtil;
 import io.sillysillyman.socialmediabackend.auth.dto.LoginDto;
 import io.sillysillyman.socialmediabackend.auth.dto.TokenDto;
 import io.sillysillyman.socialmediabackend.auth.exception.AuthErrorCode;
+import io.sillysillyman.socialmediabackend.auth.exception.TokenStorageErrorCode;
 import io.sillysillyman.socialmediabackend.auth.exception.detail.AuthenticationFailedException;
+import io.sillysillyman.socialmediabackend.auth.exception.detail.InvalidTokenException;
+import io.sillysillyman.socialmediabackend.auth.exception.detail.TokenNotFoundException;
 import io.sillysillyman.socialmediabackend.auth.repository.RefreshTokenRepository;
 import java.util.Collection;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -50,8 +54,7 @@ public class AuthService {
 
             return TokenDto.of(accessToken, refreshToken);
         } catch (AuthenticationException e) {
-            throw new AuthenticationFailedException(
-                AuthErrorCode.AUTHENTICATION_FAILED.getMessage(), e);
+            throw new AuthenticationFailedException(AuthErrorCode.AUTHENTICATION_FAILED, e);
         }
     }
 
@@ -69,7 +72,28 @@ public class AuthService {
 
     @Transactional
     public TokenDto refresh(String refreshToken) {
-        // TODO: 토큰 재발급 로직
-        return null;
+        if (!jwtUtil.isTokenValid(refreshToken)) {
+            throw new InvalidTokenException(AuthErrorCode.INVALID_TOKEN);
+        }
+
+        String username = jwtUtil.extractUsername(refreshToken);
+        String savedRefreshToken = refreshTokenRepository.findByUsername(username).orElseThrow(() ->
+            new TokenNotFoundException(TokenStorageErrorCode.REFRESH_TOKEN_NOT_FOUND)
+        );
+
+        if (!Objects.equals(refreshToken, savedRefreshToken)) {
+            throw new AuthenticationFailedException(AuthErrorCode.AUTHENTICATION_FAILED);
+        }
+
+        Collection<? extends GrantedAuthority> authorities =
+            jwtUtil.extractAuthorities(refreshToken);
+
+        String newAccessToken = jwtUtil.generateAccessToken(username, authorities);
+        String newRefreshToken = jwtUtil.generateRefreshToken(username, authorities);
+
+        refreshTokenRepository.deleteByUsername(username);
+        refreshTokenRepository.save(username, newRefreshToken);
+
+        return TokenDto.of(newAccessToken, newRefreshToken);
     }
 }
