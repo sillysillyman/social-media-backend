@@ -11,9 +11,12 @@ import io.sillysillyman.socialmediabackend.auth.properties.JwtProperties;
 import java.security.Key;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -45,6 +48,17 @@ public class JwtUtil {
 
     public String extractUsername(String token) {
         return getClaims(token).getSubject();
+    }
+
+    public Collection<? extends GrantedAuthority> extractAuthorities(String token) {
+        Claims claims = getClaims(token);
+
+        @SuppressWarnings("unchecked")
+        List<String> authorities = claims.get(AUTHORIZATION_KEY, List.class);
+
+        return authorities.stream()
+            .map(SimpleGrantedAuthority::new)
+            .collect(Collectors.toList());
     }
 
     public String resolveToken(String token) {
