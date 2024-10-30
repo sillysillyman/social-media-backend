@@ -22,7 +22,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Slf4j(topic = "AuthService")
@@ -70,7 +69,6 @@ public class AuthService {
         log.info("User logged out successfully: {}", username);
     }
 
-    @Transactional
     public TokenDto refresh(String refreshToken) {
         if (!jwtUtil.isTokenValid(refreshToken)) {
             throw new InvalidTokenException(AuthErrorCode.INVALID_TOKEN);
