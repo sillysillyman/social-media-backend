@@ -32,12 +32,16 @@ public class PostController {
         @Valid @RequestBody CreatePostRequest createPostRequest,
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(SingleItemResponse.from(null));
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            SingleItemResponse.from(
+                postService.createPost(createPostRequest, userDetails.user())
+            )
+        );
     }
 
     @GetMapping("/{postId}")
     public ResponseEntity<SingleItemResponse<PostResponse>> getPost(@PathVariable Long postId) {
-        return ResponseEntity.ok(SingleItemResponse.from(null));
+        return ResponseEntity.ok(SingleItemResponse.from(postService.getPost(postId)));
     }
 
     @PutMapping("/{postId}")
@@ -46,6 +50,7 @@ public class PostController {
         @RequestBody UpdatePostRequest updatePostRequest,
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        postService.updatePost(postId, updatePostRequest, userDetails.user());
         return ResponseEntity.noContent().build();
     }
 
@@ -54,6 +59,7 @@ public class PostController {
         @PathVariable Long postId,
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        postService.deletePost(postId, userDetails.user());
         return ResponseEntity.noContent().build();
     }
 }
