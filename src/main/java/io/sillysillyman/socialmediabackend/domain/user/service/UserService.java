@@ -31,12 +31,6 @@ public class UserService {
             .orElseThrow(() -> new UserNotFoundException(UserErrorCode.USER_NOT_FOUND));
     }
 
-    @Transactional(readOnly = true)
-    public User getByUsername(String username) {
-        return userRepository.findByUsername(username)
-            .orElseThrow(() -> new UserNotFoundException(UserErrorCode.USER_NOT_FOUND));
-    }
-
     @Transactional
     public UserDto signup(SignupDto signupDto) {
         validateUsernameUniqueness(signupDto.getUsername());
@@ -55,20 +49,20 @@ public class UserService {
     }
 
     @Transactional
-    public void changePassword(Long userId, ChangePasswordDto changePasswordDto) {
-        User user = getById(userId);
+    public void changePassword(ChangePasswordDto changePasswordDto, User user) {
         validateCurrentPasswordMatches(
             user.getPassword(),
-            passwordEncoder.encode(changePasswordDto.getCurrentPassword()));
+            passwordEncoder.encode(changePasswordDto.getCurrentPassword())
+        );
         validateNewPasswordIsDifferent(
             changePasswordDto.getCurrentPassword(),
-            changePasswordDto.getNewPassword());
+            changePasswordDto.getNewPassword()
+        );
         user.changePassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
     }
 
     @Transactional
-    public void deleteUser(Long userId) {
-        User user = getById(userId);
+    public void withdraw(User user) {
         user.delete();
     }
 
