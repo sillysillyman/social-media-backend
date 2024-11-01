@@ -94,7 +94,7 @@ public class UserServiceTest {
         when(passwordEncoder.encode("oldPassword1!")).thenReturn("encodedOldPassword1!");
         when(passwordEncoder.encode("newPassword1!")).thenReturn("encodedNewPassword1!");
 
-        userService.changePassword(1L, changePasswordDto);
+        userService.changePassword(changePasswordDto, user);
 
         verify(userRepository, times(1)).findById(1L);
         verify(passwordEncoder, times(1)).encode("oldPassword1!");
@@ -110,7 +110,7 @@ public class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(passwordEncoder.encode("incorrectPassword")).thenReturn("incorrectEncodedPassword");
 
-        assertThatThrownBy(() -> userService.changePassword(1L, changePasswordDto))
+        assertThatThrownBy(() -> userService.changePassword(changePasswordDto, user))
             .isInstanceOf(PasswordMismatchException.class);
 
         verify(userRepository, times(1)).findById(1L);
@@ -126,8 +126,10 @@ public class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(passwordEncoder.encode("oldPassword1!")).thenReturn("encodedOldPassword1!");
 
-        assertThatThrownBy(() -> userService.changePassword(1L, changePasswordDto))
-            .isInstanceOf(SamePasswordException.class);
+        assertThatThrownBy(() ->
+            userService.changePassword(changePasswordDto, user)).isInstanceOf(
+            SamePasswordException.class
+        );
 
         verify(userRepository, times(1)).findById(1L);
         verify(passwordEncoder, times(1)).encode("oldPassword1!");
