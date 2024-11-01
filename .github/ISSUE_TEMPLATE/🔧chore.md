@@ -1,5 +1,5 @@
 ---
-name: Chore
+name: "\U0001F527Chore"
 about: 기타 변경사항
 title: "[Chore] "
 labels: chore

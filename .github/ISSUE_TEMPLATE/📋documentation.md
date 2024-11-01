@@ -1,5 +1,5 @@
 ---
-name: Documentation
+name: "\U0001F4CBDocumentation"
 about: 문서 작업
 title: "[Docs] "
 labels: documentation
