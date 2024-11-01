@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
-public class ChangePasswordDto {
+public class ChangePasswordRequest {
 
     @NotBlank(message = "current password must not be blank")
     String currentPassword;

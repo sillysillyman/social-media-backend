@@ -3,7 +3,7 @@ package io.sillysillyman.socialmediabackend.common.dto;
 import java.util.List;
 import org.springframework.data.domain.Page;
 
-public record PagedListBody<T>(
+public record PagedListResponse<T>(
     List<T> content,
     int number,
     int totalPages,
@@ -11,8 +11,8 @@ public record PagedListBody<T>(
     long totalElements
 ) {
 
-    public static <T> PagedListBody<T> from(Page<T> page) {
-        return new PagedListBody<>(
+    public static <T> PagedListResponse<T> from(Page<T> page) {
+        return new PagedListResponse<>(
             page.getContent(),
             page.getNumber(),
             page.getTotalPages(),
