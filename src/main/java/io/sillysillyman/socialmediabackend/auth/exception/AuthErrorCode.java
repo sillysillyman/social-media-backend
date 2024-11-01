@@ -8,7 +8,8 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum AuthErrorCode {
     AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "username or password mismatch"),
-    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "invalid token");
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "invalid token"),
+    UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "unauthorized access");
 
     private final HttpStatus status;
     private final String message;
