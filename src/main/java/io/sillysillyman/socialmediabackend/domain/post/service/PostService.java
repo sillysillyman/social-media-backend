@@ -12,6 +12,8 @@ import io.sillysillyman.socialmediabackend.domain.post.repository.PostRepository
 import io.sillysillyman.socialmediabackend.domain.user.User;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,17 @@ public class PostService {
     @Transactional(readOnly = true)
     public PostResponse getPost(Long postId) {
         return PostResponse.from(getById(postId));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PostResponse> getUserPosts(Long userId, Pageable pageable) {
+        // TODO: 팔로우/팔로잉 기반 공개/비공개 여부 검증 필요
+        return postRepository.findByUserId(userId, pageable).map(PostResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PostResponse> getMyPosts(User user, Pageable pageable) {
+        return postRepository.findByUserId(user.getId(), pageable).map(PostResponse::from);
     }
 
     @Transactional
