@@ -2,13 +2,19 @@ package io.sillysillyman.socialmediabackend.domain.user;
 
 
 import io.sillysillyman.socialmediabackend.auth.CustomUserDetails;
+import io.sillysillyman.socialmediabackend.common.dto.PagedListResponse;
 import io.sillysillyman.socialmediabackend.common.dto.SingleItemResponse;
+import io.sillysillyman.socialmediabackend.domain.post.dto.PostResponse;
+import io.sillysillyman.socialmediabackend.domain.post.service.PostService;
 import io.sillysillyman.socialmediabackend.domain.user.dto.ChangePasswordRequest;
 import io.sillysillyman.socialmediabackend.domain.user.dto.SignupRequest;
 import io.sillysillyman.socialmediabackend.domain.user.dto.UserResponse;
 import io.sillysillyman.socialmediabackend.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserController {
 
+    private final PostService postService;
     private final UserService userService;
 
     @PostMapping("/signup")
@@ -39,6 +46,25 @@ public class UserController {
     @GetMapping("/{userId}")
     ResponseEntity<SingleItemResponse<UserResponse>> getUser(@PathVariable Long userId) {
         return ResponseEntity.ok(SingleItemResponse.from(userService.getUser(userId)));
+    }
+
+    @GetMapping("/{userId}/posts")
+    ResponseEntity<PagedListResponse<PostResponse>> getUserPosts(@PathVariable Long userId,
+        @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+            PagedListResponse.from(postService.getUserPosts(userId, pageable))
+        );
+    }
+
+    @GetMapping("/me/posts")
+    ResponseEntity<PagedListResponse<PostResponse>> getMyPosts(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+            PagedListResponse.from(postService.getMyPosts(userDetails.user(), pageable))
+        );
     }
 
     @PutMapping("/me/password")
