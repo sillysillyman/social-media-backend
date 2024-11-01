@@ -1,8 +1,8 @@
 package io.sillysillyman.socialmediabackend.auth.service;
 
 import io.sillysillyman.socialmediabackend.auth.CustomUserDetails;
-import io.sillysillyman.socialmediabackend.auth.dto.LoginDto;
-import io.sillysillyman.socialmediabackend.auth.dto.TokenDto;
+import io.sillysillyman.socialmediabackend.auth.dto.LoginRequest;
+import io.sillysillyman.socialmediabackend.auth.dto.TokenResponse;
 import io.sillysillyman.socialmediabackend.auth.exception.AuthErrorCode;
 import io.sillysillyman.socialmediabackend.auth.exception.TokenStorageErrorCode;
 import io.sillysillyman.socialmediabackend.auth.exception.detail.AuthenticationFailedException;
@@ -32,13 +32,13 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
-    public TokenDto login(LoginDto loginDto) {
+    public TokenResponse login(LoginRequest loginRequest) {
 
         try {
             Authentication authentication = authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken.unauthenticated(
-                    loginDto.getUsername(),
-                    loginDto.getPassword()
+                    loginRequest.getUsername(),
+                    loginRequest.getPassword()
                 )
             );
 
@@ -51,7 +51,7 @@ public class AuthService {
 
             refreshTokenRepository.save(username, refreshToken);
 
-            return TokenDto.of(accessToken, refreshToken);
+            return TokenResponse.of(accessToken, refreshToken);
         } catch (AuthenticationException e) {
             throw new AuthenticationFailedException(AuthErrorCode.AUTHENTICATION_FAILED, e);
         }
@@ -69,7 +69,7 @@ public class AuthService {
         log.info("User logged out successfully: {}", username);
     }
 
-    public TokenDto refresh(String refreshToken) {
+    public TokenResponse refresh(String refreshToken) {
         if (!jwtUtil.isTokenValid(refreshToken)) {
             throw new InvalidTokenException(AuthErrorCode.INVALID_TOKEN);
         }
@@ -92,6 +92,6 @@ public class AuthService {
         refreshTokenRepository.deleteByUsername(username);
         refreshTokenRepository.save(username, newRefreshToken);
 
-        return TokenDto.of(newAccessToken, newRefreshToken);
+        return TokenResponse.of(newAccessToken, newRefreshToken);
     }
 }

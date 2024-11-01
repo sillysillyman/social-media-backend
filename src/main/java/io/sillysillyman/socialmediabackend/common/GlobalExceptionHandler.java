@@ -1,6 +1,6 @@
 package io.sillysillyman.socialmediabackend.common;
 
-import io.sillysillyman.socialmediabackend.common.dto.ErrorMessage;
+import io.sillysillyman.socialmediabackend.common.dto.ErrorResponse;
 import io.sillysillyman.socialmediabackend.domain.user.exception.UserException;
 import java.util.List;
 import java.util.stream.Stream;
@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserException.class)
-    public ResponseEntity<ErrorMessage> handleUserException(UserException e) {
+    public ResponseEntity<ErrorResponse> handleUserException(UserException e) {
         log.error("error: ", e);
         return ResponseEntity.status(e.getUserErrorCode().getStatus()).body(
-            new ErrorMessage(
+            new ErrorResponse(
                 e.getUserErrorCode().getMessage(),
                 e.getUserErrorCode().getStatus().value(),
                 e.getUserErrorCode().getStatus().name()
@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorMessage> handleMethodArgumentNotValidException(
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
         MethodArgumentNotValidException e
     ) {
         List<String> errorMessages = Stream.concat(
@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
         String combinedErrorMessage = String.join("\n", errorMessages);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-            new ErrorMessage(
+            new ErrorResponse(
                 combinedErrorMessage,
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.name()

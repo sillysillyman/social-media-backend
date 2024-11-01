@@ -1,10 +1,10 @@
 package io.sillysillyman.socialmediabackend.auth;
 
 import io.sillysillyman.socialmediabackend.auth.constants.JwtConstants;
-import io.sillysillyman.socialmediabackend.auth.dto.LoginDto;
-import io.sillysillyman.socialmediabackend.auth.dto.TokenDto;
+import io.sillysillyman.socialmediabackend.auth.dto.LoginRequest;
+import io.sillysillyman.socialmediabackend.auth.dto.TokenResponse;
 import io.sillysillyman.socialmediabackend.auth.service.AuthService;
-import io.sillysillyman.socialmediabackend.common.dto.SingleItemBody;
+import io.sillysillyman.socialmediabackend.common.dto.SingleItemResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +22,9 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<SingleItemBody<TokenDto>> login(@Valid @RequestBody LoginDto loginDto) {
-        return ResponseEntity.ok(SingleItemBody.from(authService.login(loginDto)));
+    public ResponseEntity<SingleItemResponse<TokenResponse>> login(
+        @Valid @RequestBody LoginRequest loginRequest) {
+        return ResponseEntity.ok(SingleItemResponse.from(authService.login(loginRequest)));
     }
 
     @PostMapping("/logout")
@@ -33,9 +34,9 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<SingleItemBody<TokenDto>> refresh(
+    public ResponseEntity<SingleItemResponse<TokenResponse>> refresh(
         @RequestHeader(JwtConstants.REFRESH_HEADER) String refreshToken
     ) {
-        return ResponseEntity.ok(SingleItemBody.from(authService.refresh(refreshToken)));
+        return ResponseEntity.ok(SingleItemResponse.from(authService.refresh(refreshToken)));
     }
 }

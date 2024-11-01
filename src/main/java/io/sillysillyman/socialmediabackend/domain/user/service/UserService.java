@@ -2,9 +2,9 @@ package io.sillysillyman.socialmediabackend.domain.user.service;
 
 import io.sillysillyman.socialmediabackend.domain.user.User;
 import io.sillysillyman.socialmediabackend.domain.user.UserRole;
-import io.sillysillyman.socialmediabackend.domain.user.dto.ChangePasswordDto;
-import io.sillysillyman.socialmediabackend.domain.user.dto.SignupDto;
-import io.sillysillyman.socialmediabackend.domain.user.dto.UserDto;
+import io.sillysillyman.socialmediabackend.domain.user.dto.ChangePasswordRequest;
+import io.sillysillyman.socialmediabackend.domain.user.dto.SignupRequest;
+import io.sillysillyman.socialmediabackend.domain.user.dto.UserResponse;
 import io.sillysillyman.socialmediabackend.domain.user.exception.UserErrorCode;
 import io.sillysillyman.socialmediabackend.domain.user.exception.detail.DuplicateUsernameException;
 import io.sillysillyman.socialmediabackend.domain.user.exception.detail.PasswordMismatchException;
@@ -32,33 +32,33 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto signup(SignupDto signupDto) {
-        validateUsernameUniqueness(signupDto.getUsername());
+    public UserResponse signup(SignupRequest signupRequest) {
+        validateUsernameUniqueness(signupRequest.getUsername());
         User user = User.builder()
-            .username(signupDto.getUsername())
-            .password(passwordEncoder.encode(signupDto.getPassword()))
+            .username(signupRequest.getUsername())
+            .password(passwordEncoder.encode(signupRequest.getPassword()))
             .role(UserRole.USER)
             .build();
         userRepository.save(user);
-        return UserDto.from(user);
+        return UserResponse.from(user);
     }
 
     @Transactional(readOnly = true)
-    public UserDto getUser(Long userId) {
-        return UserDto.from(getById(userId));
+    public UserResponse getUser(Long userId) {
+        return UserResponse.from(getById(userId));
     }
 
     @Transactional
-    public void changePassword(ChangePasswordDto changePasswordDto, User user) {
+    public void changePassword(ChangePasswordRequest changePasswordRequest, User user) {
         validateCurrentPasswordMatches(
             user.getPassword(),
-            passwordEncoder.encode(changePasswordDto.getCurrentPassword())
+            passwordEncoder.encode(changePasswordRequest.getCurrentPassword())
         );
         validateNewPasswordIsDifferent(
-            changePasswordDto.getCurrentPassword(),
-            changePasswordDto.getNewPassword()
+            changePasswordRequest.getCurrentPassword(),
+            changePasswordRequest.getNewPassword()
         );
-        user.changePassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+        user.changePassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
     }
 
     @Transactional
