@@ -2,10 +2,10 @@ package io.sillysillyman.socialmediabackend.domain.user;
 
 
 import io.sillysillyman.socialmediabackend.auth.CustomUserDetails;
-import io.sillysillyman.socialmediabackend.common.dto.SingleItemBody;
-import io.sillysillyman.socialmediabackend.domain.user.dto.ChangePasswordDto;
-import io.sillysillyman.socialmediabackend.domain.user.dto.SignupDto;
-import io.sillysillyman.socialmediabackend.domain.user.dto.UserDto;
+import io.sillysillyman.socialmediabackend.common.dto.SingleItemResponse;
+import io.sillysillyman.socialmediabackend.domain.user.dto.ChangePasswordRequest;
+import io.sillysillyman.socialmediabackend.domain.user.dto.SignupRequest;
+import io.sillysillyman.socialmediabackend.domain.user.dto.UserResponse;
 import io.sillysillyman.socialmediabackend.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,23 +29,24 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    ResponseEntity<SingleItemBody<UserDto>> signup(@Valid @RequestBody SignupDto signupDto) {
+    ResponseEntity<SingleItemResponse<UserResponse>> signup(
+        @Valid @RequestBody SignupRequest signupRequest) {
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(SingleItemBody.from(userService.signup(signupDto)));
+            .body(SingleItemResponse.from(userService.signup(signupRequest)));
     }
 
     @GetMapping("/{userId}")
-    ResponseEntity<SingleItemBody<UserDto>> getUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(SingleItemBody.from(userService.getUser(userId)));
+    ResponseEntity<SingleItemResponse<UserResponse>> getUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(SingleItemResponse.from(userService.getUser(userId)));
     }
 
     @PutMapping("/me/password")
     ResponseEntity<Void> changePassword(
-        @Valid @RequestBody ChangePasswordDto changePasswordDto,
+        @Valid @RequestBody ChangePasswordRequest changePasswordRequest,
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        userService.changePassword(changePasswordDto, userDetails.user());
+        userService.changePassword(changePasswordRequest, userDetails.user());
         return ResponseEntity.noContent().build();
     }
 

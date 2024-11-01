@@ -1,7 +1,7 @@
 package io.sillysillyman.socialmediabackend.auth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.sillysillyman.socialmediabackend.common.dto.ErrorMessage;
+import io.sillysillyman.socialmediabackend.common.dto.ErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,12 +32,12 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
-        ErrorMessage errorMessage = ErrorMessage.of(
+        ErrorResponse errorResponse = ErrorResponse.of(
             accessDeniedException.getMessage(),
             HttpStatus.FORBIDDEN.value(),
             HttpStatus.FORBIDDEN.name()
         );
 
-        objectMapper.writeValue(response.getOutputStream(), errorMessage);
+        objectMapper.writeValue(response.getOutputStream(), errorResponse);
     }
 }

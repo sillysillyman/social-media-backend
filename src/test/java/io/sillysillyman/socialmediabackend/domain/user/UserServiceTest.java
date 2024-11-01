@@ -8,8 +8,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.sillysillyman.socialmediabackend.domain.user.dto.ChangePasswordDto;
-import io.sillysillyman.socialmediabackend.domain.user.dto.SignupDto;
+import io.sillysillyman.socialmediabackend.domain.user.dto.ChangePasswordRequest;
+import io.sillysillyman.socialmediabackend.domain.user.dto.SignupRequest;
 import io.sillysillyman.socialmediabackend.domain.user.exception.detail.DuplicateUsernameException;
 import io.sillysillyman.socialmediabackend.domain.user.exception.detail.PasswordMismatchException;
 import io.sillysillyman.socialmediabackend.domain.user.exception.detail.SamePasswordException;
@@ -61,24 +61,25 @@ public class UserServiceTest {
 
     @Test
     void signup_UniqueUsername_SavesUser() {
-        SignupDto signupDto = createSignupDto("username", "password1!", "password1!");
+        SignupRequest signupRequest = createSignupDto("username", "password1!", "password1!");
 
-        when(userRepository.existsByUsername(signupDto.getUsername())).thenReturn(false);
-        when(passwordEncoder.encode(signupDto.getPassword())).thenReturn("encodedPassword1!");
+        when(userRepository.existsByUsername(signupRequest.getUsername())).thenReturn(false);
+        when(passwordEncoder.encode(signupRequest.getPassword())).thenReturn("encodedPassword1!");
 
-        userService.signup(signupDto);
+        userService.signup(signupRequest);
 
         verify(userRepository, times(1)).save(any(User.class));
-        verify(passwordEncoder, times(1)).encode(signupDto.getPassword());
+        verify(passwordEncoder, times(1)).encode(signupRequest.getPassword());
     }
 
     @Test
     void signup_DuplicateUsername_ThrowsDuplicateUsernameException() {
-        SignupDto signupDto = createSignupDto("duplicateUsername", "password1!", "password1!");
+        SignupRequest signupRequest = createSignupDto("duplicateUsername", "password1!",
+            "password1!");
 
-        when(userRepository.existsByUsername(signupDto.getUsername())).thenReturn(true);
+        when(userRepository.existsByUsername(signupRequest.getUsername())).thenReturn(true);
 
-        assertThatThrownBy(() -> userService.signup(signupDto))
+        assertThatThrownBy(() -> userService.signup(signupRequest))
             .isInstanceOf(DuplicateUsernameException.class);
 
         verify(userRepository, never()).save(any(User.class));
@@ -87,14 +88,14 @@ public class UserServiceTest {
     @Test
     void changePassword_SuccessfulChange() {
         User user = new User("username", "encodedOldPassword1!", UserRole.USER);
-        ChangePasswordDto changePasswordDto = createChangePasswordDto("oldPassword1!",
+        ChangePasswordRequest changePasswordRequest = createChangePasswordDto("oldPassword1!",
             "newPassword1!");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(passwordEncoder.encode("oldPassword1!")).thenReturn("encodedOldPassword1!");
         when(passwordEncoder.encode("newPassword1!")).thenReturn("encodedNewPassword1!");
 
-        userService.changePassword(changePasswordDto, user);
+        userService.changePassword(changePasswordRequest, user);
 
         verify(userRepository, times(1)).findById(1L);
         verify(passwordEncoder, times(1)).encode("oldPassword1!");
@@ -105,12 +106,12 @@ public class UserServiceTest {
     @Test
     void changePassword_IncorrectCurrentPassword_ThrowsPasswordMismatchException() {
         User user = new User("username", "encodedOldPassword1!", UserRole.USER);
-        ChangePasswordDto changePasswordDto = createChangePasswordDto("incorrectPassword",
+        ChangePasswordRequest changePasswordRequest = createChangePasswordDto("incorrectPassword",
             "newPassword1!");
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(passwordEncoder.encode("incorrectPassword")).thenReturn("incorrectEncodedPassword");
 
-        assertThatThrownBy(() -> userService.changePassword(changePasswordDto, user))
+        assertThatThrownBy(() -> userService.changePassword(changePasswordRequest, user))
             .isInstanceOf(PasswordMismatchException.class);
 
         verify(userRepository, times(1)).findById(1L);
@@ -121,13 +122,13 @@ public class UserServiceTest {
     @Test
     void changePassword_SameNewPassword_ThrowsSamePasswordException() {
         User user = new User("username", "encodedOldPassword1!", UserRole.USER);
-        ChangePasswordDto changePasswordDto = createChangePasswordDto("oldPassword1!",
+        ChangePasswordRequest changePasswordRequest = createChangePasswordDto("oldPassword1!",
             "oldPassword1!");
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(passwordEncoder.encode("oldPassword1!")).thenReturn("encodedOldPassword1!");
 
         assertThatThrownBy(() ->
-            userService.changePassword(changePasswordDto, user)).isInstanceOf(
+            userService.changePassword(changePasswordRequest, user)).isInstanceOf(
             SamePasswordException.class
         );
 
@@ -135,18 +136,20 @@ public class UserServiceTest {
         verify(passwordEncoder, times(1)).encode("oldPassword1!");
     }
 
-    private SignupDto createSignupDto(String username, String password, String confirmPassword) {
-        SignupDto signupDto = new SignupDto();
-        ReflectionTestUtils.setField(signupDto, "username", username);
-        ReflectionTestUtils.setField(signupDto, "password", password);
-        ReflectionTestUtils.setField(signupDto, "confirmPassword", confirmPassword);
-        return signupDto;
+    private SignupRequest createSignupDto(String username, String password,
+        String confirmPassword) {
+        SignupRequest signupRequest = new SignupRequest();
+        ReflectionTestUtils.setField(signupRequest, "username", username);
+        ReflectionTestUtils.setField(signupRequest, "password", password);
+        ReflectionTestUtils.setField(signupRequest, "confirmPassword", confirmPassword);
+        return signupRequest;
     }
 
-    private ChangePasswordDto createChangePasswordDto(String currentPassword, String newPassword) {
-        ChangePasswordDto changePasswordDto = new ChangePasswordDto();
-        ReflectionTestUtils.setField(changePasswordDto, "currentPassword", currentPassword);
-        ReflectionTestUtils.setField(changePasswordDto, "newPassword", newPassword);
-        return changePasswordDto;
+    private ChangePasswordRequest createChangePasswordDto(String currentPassword,
+        String newPassword) {
+        ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
+        ReflectionTestUtils.setField(changePasswordRequest, "currentPassword", currentPassword);
+        ReflectionTestUtils.setField(changePasswordRequest, "newPassword", newPassword);
+        return changePasswordRequest;
     }
 }
