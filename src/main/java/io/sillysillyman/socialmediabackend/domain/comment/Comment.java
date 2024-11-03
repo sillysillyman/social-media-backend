@@ -1,6 +1,7 @@
 package io.sillysillyman.socialmediabackend.domain.comment;
 
 import io.sillysillyman.socialmediabackend.common.BaseEntity;
+import io.sillysillyman.socialmediabackend.domain.comment.dto.UpdateCommentRequest;
 import io.sillysillyman.socialmediabackend.domain.post.Post;
 import io.sillysillyman.socialmediabackend.domain.user.User;
 import jakarta.persistence.Entity;
@@ -39,5 +40,9 @@ public class Comment extends BaseEntity {
         this.content = content;
         this.post = post;
         this.user = user;
+    }
+
+    public void update(UpdateCommentRequest updateCommentRequest) {
+        this.content = updateCommentRequest.getContent();
     }
 }
