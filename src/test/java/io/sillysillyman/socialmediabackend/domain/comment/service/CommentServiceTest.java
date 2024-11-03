@@ -359,4 +359,119 @@ public class CommentServiceTest {
             then(commentRepository).shouldHaveNoMoreInteractions();
         }
     }
+
+    @Nested
+    @DisplayName("댓글 삭제")
+    class DeleteComment {
+
+        private static final String COMMENT_CONTENT = "Test comment";
+
+        @Test
+        @DisplayName("정상적인 댓글 삭제")
+        void deletesCommentSuccessfully() {
+            // given
+            Comment foundComment = Comment.builder()
+                .content(COMMENT_CONTENT)
+                .post(post)
+                .user(user)
+                .build();
+            ReflectionTestUtils.setField(foundComment, "id", 1L);
+
+            given(commentRepository.findById(foundComment.getId()))
+                .willReturn(Optional.of(foundComment));
+
+            // when
+            commentService.deleteComment(post.getId(), foundComment.getId(), user);
+
+            // then
+            then(commentRepository).should().findById(foundComment.getId());
+            then(commentRepository).should().delete(foundComment);
+            then(commentRepository).shouldHaveNoMoreInteractions();
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 댓글 삭제 시도")
+        void throwsExceptionWhenCommentNotFound() {
+            // given
+            Long nonExistentCommentId = 999L;
+            given(commentRepository.findById(nonExistentCommentId)).willReturn(Optional.empty());
+
+            // when
+            ThrowingCallable when = () ->
+                commentService.deleteComment(post.getId(), nonExistentCommentId, user);
+
+            // then
+            assertThatThrownBy(when)
+                .isInstanceOf(CommentNotFoundException.class)
+                .hasMessage(CommentErrorCode.COMMENT_NOT_FOUND.getMessage());
+
+            then(commentRepository).should().findById(nonExistentCommentId);
+            then(commentRepository).shouldHaveNoMoreInteractions();
+        }
+
+        @Test
+        @DisplayName("권한이 없는 사용자의 댓글 삭제 시도")
+        void throwsExceptionWhenUnauthorizedUser() {
+            // given
+            User unauthorizedUser = User.builder()
+                .username("unauthorizedUser")
+                .build();
+            ReflectionTestUtils.setField(unauthorizedUser, "id", 2L);
+
+            Comment foundComment = Comment.builder()
+                .content(COMMENT_CONTENT)
+                .post(post)
+                .user(user)
+                .build();
+            ReflectionTestUtils.setField(foundComment, "id", 1L);
+
+            given(commentRepository.findById(foundComment.getId()))
+                .willReturn(Optional.of(foundComment));
+
+            // when
+            ThrowingCallable when = () ->
+                commentService.deleteComment(post.getId(), foundComment.getId(), unauthorizedUser);
+
+            // then
+            assertThatThrownBy(when)
+                .isInstanceOf(UnauthorizedAccessException.class)
+                .hasMessage(AuthErrorCode.UNAUTHORIZED_ACCESS.getMessage());
+
+            then(commentRepository).should().findById(foundComment.getId());
+            then(commentRepository).shouldHaveNoMoreInteractions();
+        }
+
+        @Test
+        @DisplayName("다른 게시글의 댓글 삭제 시도")
+        void throwsExceptionWhenCommentNotBelongToPost() {
+            // given
+            Post anotherPost = Post.builder()
+                .content("Another post content")
+                .user(user)
+                .build();
+            ReflectionTestUtils.setField(anotherPost, "id", 2L);
+
+            Comment foundComment = Comment.builder()
+                .content(COMMENT_CONTENT)
+                .post(anotherPost)
+                .user(user)
+                .build();
+            ReflectionTestUtils.setField(foundComment, "id", 1L);
+
+            given(commentRepository.findById(foundComment.getId()))
+                .willReturn(Optional.of(foundComment));
+
+            // when
+            ThrowingCallable when = () ->
+                commentService.deleteComment(post.getId(), foundComment.getId(), user);
+
+            // then
+            assertThatThrownBy(when)
+                .isInstanceOf(CommentNotBelongToPostException.class)
+                .hasMessage(CommentErrorCode.COMMENT_NOT_BELONG_TO_POST.getMessage());
+
+            then(commentRepository).should().findById(foundComment.getId());
+            then(commentRepository).shouldHaveNoMoreInteractions();
+        }
+    }
 }
