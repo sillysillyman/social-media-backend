@@ -8,6 +8,8 @@ import io.sillysillyman.socialmediabackend.domain.post.Post;
 import io.sillysillyman.socialmediabackend.domain.post.service.PostService;
 import io.sillysillyman.socialmediabackend.domain.user.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,5 +34,10 @@ public class CommentService {
             .build();
         commentRepository.save(comment);
         return CommentResponse.from(comment);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CommentResponse> getComments(Long postId, Pageable pageable) {
+        return commentRepository.findByPostId(postId, pageable).map(CommentResponse::from);
     }
 }
