@@ -70,6 +70,16 @@ public class CommentService {
         comment.update(updateCommentRequest);
     }
 
+    @Transactional
+    public void deleteComment(Long postId, Long commentId, User user) {
+        Comment comment = getById(commentId);
+
+        validateCommentOwnership(user.getId(), comment.getUser().getId());
+        validateCommentPostId(postId, comment.getPost().getId());
+
+        commentRepository.delete(comment);
+    }
+
     private void validateCommentOwnership(Long userId, Long authorId) {
         if (!Objects.equals(authorId, userId)) {
             throw new UnauthorizedAccessException(AuthErrorCode.UNAUTHORIZED_ACCESS);
