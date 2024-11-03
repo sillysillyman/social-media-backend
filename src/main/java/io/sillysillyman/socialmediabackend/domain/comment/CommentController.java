@@ -2,15 +2,19 @@ package io.sillysillyman.socialmediabackend.domain.comment;
 
 
 import io.sillysillyman.socialmediabackend.auth.CustomUserDetails;
+import io.sillysillyman.socialmediabackend.common.dto.PagedListResponse;
 import io.sillysillyman.socialmediabackend.common.dto.SingleItemResponse;
 import io.sillysillyman.socialmediabackend.domain.comment.dto.CommentResponse;
 import io.sillysillyman.socialmediabackend.domain.comment.dto.CreateCommentRequest;
 import io.sillysillyman.socialmediabackend.domain.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,6 +38,16 @@ public class CommentController {
             SingleItemResponse.from(
                 commentService.createComment(postId, createCommentRequest, userDetails.user())
             )
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<PagedListResponse<CommentResponse>> getComments(
+        @PathVariable Long postId,
+        @PageableDefault(sort = "createdAt") Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+            PagedListResponse.from(commentService.getComments(postId, pageable))
         );
     }
 }
