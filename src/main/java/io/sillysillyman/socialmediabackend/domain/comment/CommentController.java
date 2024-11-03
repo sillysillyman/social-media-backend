@@ -6,6 +6,7 @@ import io.sillysillyman.socialmediabackend.common.dto.PagedListResponse;
 import io.sillysillyman.socialmediabackend.common.dto.SingleItemResponse;
 import io.sillysillyman.socialmediabackend.domain.comment.dto.CommentResponse;
 import io.sillysillyman.socialmediabackend.domain.comment.dto.CreateCommentRequest;
+import io.sillysillyman.socialmediabackend.domain.comment.dto.UpdateCommentRequest;
 import io.sillysillyman.socialmediabackend.domain.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,5 +51,16 @@ public class CommentController {
         return ResponseEntity.ok(
             PagedListResponse.from(commentService.getComments(postId, pageable))
         );
+    }
+
+    @PutMapping("/{commentId}")
+    public ResponseEntity<Void> updateComment(
+        @PathVariable Long postId,
+        @PathVariable Long commentId,
+        @Valid @RequestBody UpdateCommentRequest updateCommentRequest,
+        @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        commentService.updateComment(postId, commentId, updateCommentRequest, userDetails.user());
+        return ResponseEntity.noContent().build();
     }
 }
