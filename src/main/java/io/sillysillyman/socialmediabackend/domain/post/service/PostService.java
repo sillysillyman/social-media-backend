@@ -55,19 +55,19 @@ public class PostService {
     @Transactional
     public void updatePost(Long postId, UpdatePostRequest updatePostRequest, User user) {
         Post post = getById(postId);
-        validatePostOwnership(post.getUser().getId(), user.getId());
+        validatePostOwnership(user.getId(), post.getUser().getId());
         post.update(updatePostRequest);
     }
 
     @Transactional
     public void deletePost(Long postId, User user) {
         Post post = getById(postId);
-        validatePostOwnership(post.getUser().getId(), user.getId());
+        validatePostOwnership(user.getId(), post.getUser().getId());
         postRepository.delete(post);
     }
 
-    private void validatePostOwnership(Long authorId, Long userId) {
-        if (!Objects.equals(authorId, userId)) {
+    private void validatePostOwnership(Long userId, Long authorId) {
+        if (!Objects.equals(userId, authorId)) {
             throw new UnauthorizedAccessException(AuthErrorCode.UNAUTHORIZED_ACCESS);
         }
     }
