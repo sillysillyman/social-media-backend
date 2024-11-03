@@ -10,6 +10,7 @@ import io.sillysillyman.socialmediabackend.domain.comment.dto.CommentResponse;
 import io.sillysillyman.socialmediabackend.domain.comment.dto.CreateCommentRequest;
 import io.sillysillyman.socialmediabackend.domain.comment.repository.CommentRepository;
 import io.sillysillyman.socialmediabackend.domain.post.Post;
+import io.sillysillyman.socialmediabackend.domain.post.service.PostService;
 import io.sillysillyman.socialmediabackend.domain.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,13 +28,14 @@ public class CommentServiceTest {
     @Mock
     private CommentRepository commentRepository;
 
+    @Mock
+    private PostService postService;
+
     @InjectMocks
     private CommentService commentService;
 
     private User user;
-
     private Post post;
-
     private Comment comment;
 
     @BeforeEach
@@ -69,17 +71,26 @@ public class CommentServiceTest {
             ReflectionTestUtils.setField(request, "content", "New comment content");
 
             Comment savedComment = Comment.builder()
-                .content(request.getContent())
+                .content("New comment content")
+                .post(post)
                 .user(user)
                 .build();
+            ReflectionTestUtils.setField(savedComment, "id", 1L);
+
+            given(postService.getById(post.getId())).willReturn(post);
             given(commentRepository.save(any(Comment.class))).willReturn(savedComment);
 
             // when
-            CommentResponse response = commentService.createComment(request, user);
+            CommentResponse response = commentService.createComment(post.getId(), request, user);
 
             // then
-            assertThat(response.content()).isEqualTo("New comment content");
-            assertThat(response.userResponse().id()).isEqualTo(user.getId());
+            assertThat(response)
+                .satisfies(r -> {
+                    assertThat(r.content()).isEqualTo("New comment content");
+                    assertThat(r.postResponse().postId()).isEqualTo(post.getId());
+                    assertThat(r.userResponse().userId()).isEqualTo(user.getId());
+                });
+
             then(commentRepository).should().save(any(Comment.class));
             then(commentRepository).shouldHaveNoMoreInteractions();
         }
