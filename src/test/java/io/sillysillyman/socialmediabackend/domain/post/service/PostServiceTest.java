@@ -116,7 +116,7 @@ class PostServiceTest {
 
             // then
             assertThat(response.content()).isEqualTo("New post content");
-            assertThat(response.userResponse().id()).isEqualTo(user.getId());
+            assertThat(response.userResponse().userId()).isEqualTo(user.getId());
             then(postRepository).should().save(any(Post.class));
             then(postRepository).shouldHaveNoMoreInteractions();
         }
@@ -188,7 +188,7 @@ class PostServiceTest {
             assertThat(result.getContent()).hasSize(2);
             assertThat(result.getContent().get(0).content()).isEqualTo("My first post");
             assertThat(result.getContent().get(1).content()).isEqualTo("My second post");
-            assertThat(result.getContent().get(0).userResponse().id()).isEqualTo(user.getId());
+            assertThat(result.getContent().get(0).userResponse().userId()).isEqualTo(user.getId());
             assertThat(result.getTotalElements()).isEqualTo(2);
             then(postRepository).should().findByUserId(user.getId(), pageable);
             then(postRepository).shouldHaveNoMoreInteractions();
