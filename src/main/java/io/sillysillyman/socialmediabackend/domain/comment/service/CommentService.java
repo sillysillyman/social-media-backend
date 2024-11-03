@@ -3,6 +3,8 @@ package io.sillysillyman.socialmediabackend.domain.comment.service;
 import io.sillysillyman.socialmediabackend.domain.comment.Comment;
 import io.sillysillyman.socialmediabackend.domain.comment.dto.CommentResponse;
 import io.sillysillyman.socialmediabackend.domain.comment.dto.CreateCommentRequest;
+import io.sillysillyman.socialmediabackend.domain.comment.exception.CommentErrorCode;
+import io.sillysillyman.socialmediabackend.domain.comment.exception.detail.CommentNotFoundException;
 import io.sillysillyman.socialmediabackend.domain.comment.repository.CommentRepository;
 import io.sillysillyman.socialmediabackend.domain.post.Post;
 import io.sillysillyman.socialmediabackend.domain.post.service.PostService;
@@ -19,6 +21,13 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostService postService;
+
+    @Transactional(readOnly = true)
+    public Comment getById(Long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(() ->
+            new CommentNotFoundException(CommentErrorCode.COMMENT_NOT_FOUND)
+        );
+    }
 
     @Transactional
     public CommentResponse createComment(
