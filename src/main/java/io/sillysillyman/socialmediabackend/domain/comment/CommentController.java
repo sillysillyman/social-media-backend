@@ -15,6 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,6 +62,16 @@ public class CommentController {
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         commentService.updateComment(postId, commentId, updateCommentRequest, userDetails.user());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+        @PathVariable Long postId,
+        @PathVariable Long commentId,
+        @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        commentService.deleteComment(postId, commentId, userDetails.user());
         return ResponseEntity.noContent().build();
     }
 }
