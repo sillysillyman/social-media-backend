@@ -71,7 +71,7 @@ public class CommentService {
     }
 
     private void validateCommentOwnership(Long userId, Long authorId) {
-        if (Objects.equals(authorId, userId)) {
+        if (!Objects.equals(authorId, userId)) {
             throw new UnauthorizedAccessException(AuthErrorCode.UNAUTHORIZED_ACCESS);
         }
     }
