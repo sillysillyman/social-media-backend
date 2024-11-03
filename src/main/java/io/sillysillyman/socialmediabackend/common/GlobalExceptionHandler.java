@@ -1,8 +1,11 @@
 package io.sillysillyman.socialmediabackend.common;
 
 import io.sillysillyman.socialmediabackend.common.dto.ErrorResponse;
+import io.sillysillyman.socialmediabackend.domain.comment.exception.CommentErrorCode;
 import io.sillysillyman.socialmediabackend.domain.comment.exception.CommentException;
+import io.sillysillyman.socialmediabackend.domain.post.exception.PostErrorCode;
 import io.sillysillyman.socialmediabackend.domain.post.exception.PostException;
+import io.sillysillyman.socialmediabackend.domain.user.exception.UserErrorCode;
 import io.sillysillyman.socialmediabackend.domain.user.exception.UserException;
 import java.util.List;
 import java.util.stream.Stream;
@@ -21,11 +24,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CommentException.class)
     public ResponseEntity<ErrorResponse> handleCommentException(CommentException e) {
         log.error("error: ", e);
-        return ResponseEntity.status(e.getCommentErrorCode().getStatus()).body(
+        CommentErrorCode commentErrorCode = e.getCommentErrorCode();
+        return ResponseEntity.status(commentErrorCode.getStatus()).body(
             new ErrorResponse(
-                e.getCommentErrorCode().getMessage(),
-                e.getCommentErrorCode().getStatus().value(),
-                e.getCommentErrorCode().getStatus().name()
+                commentErrorCode.getMessage(),
+                commentErrorCode.getStatus().value(),
+                commentErrorCode.getStatus().name()
             )
         );
     }
@@ -33,11 +37,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PostException.class)
     public ResponseEntity<ErrorResponse> handlePostException(PostException e) {
         log.error("error: ", e);
-        return ResponseEntity.status(e.getPostErrorCode().getStatus()).body(
+        PostErrorCode postErrorCode = e.getPostErrorCode();
+        return ResponseEntity.status(postErrorCode.getStatus()).body(
             new ErrorResponse(
-                e.getPostErrorCode().getMessage(),
-                e.getPostErrorCode().getStatus().value(),
-                e.getPostErrorCode().getStatus().name()
+                postErrorCode.getMessage(),
+                postErrorCode.getStatus().value(),
+                postErrorCode.getStatus().name()
             )
         );
     }
@@ -45,11 +50,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserException.class)
     public ResponseEntity<ErrorResponse> handleUserException(UserException e) {
         log.error("error: ", e);
-        return ResponseEntity.status(e.getUserErrorCode().getStatus()).body(
+        UserErrorCode userErrorCode = e.getUserErrorCode();
+        return ResponseEntity.status(userErrorCode.getStatus()).body(
             new ErrorResponse(
-                e.getUserErrorCode().getMessage(),
-                e.getUserErrorCode().getStatus().value(),
-                e.getUserErrorCode().getStatus().name()
+                userErrorCode.getMessage(),
+                userErrorCode.getStatus().value(),
+                userErrorCode.getStatus().name()
             )
         );
     }
