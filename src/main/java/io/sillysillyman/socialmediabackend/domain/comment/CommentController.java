@@ -1,8 +1,18 @@
 package io.sillysillyman.socialmediabackend.domain.comment;
 
 
+import io.sillysillyman.socialmediabackend.auth.CustomUserDetails;
+import io.sillysillyman.socialmediabackend.common.dto.SingleItemResponse;
+import io.sillysillyman.socialmediabackend.domain.comment.dto.CommentResponse;
+import io.sillysillyman.socialmediabackend.domain.comment.dto.CreateCommentRequest;
 import io.sillysillyman.socialmediabackend.domain.comment.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,4 +22,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommentController {
 
     private final CommentService commentService;
+
+    @PostMapping
+    public ResponseEntity<SingleItemResponse<CommentResponse>> createComment(
+        @Valid @RequestBody CreateCommentRequest createCommentRequest,
+        @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(SingleItemResponse.from(null));
+    }
 }
