@@ -1,8 +1,8 @@
-package io.sillysillyman.api.controller.auth.config;
+package io.sillysillyman.api.auth.config;
 
-import io.sillysillyman.api.controller.auth.filter.JwtAuthenticationFilter;
-import io.sillysillyman.api.controller.auth.handler.JwtAccessDeniedHandler;
-import io.sillysillyman.api.controller.auth.handler.JwtAuthenticationEntryPoint;
+import io.sillysillyman.api.auth.filter.JwtAuthenticationFilter;
+import io.sillysillyman.api.auth.handler.JwtAccessDeniedHandler;
+import io.sillysillyman.api.auth.handler.JwtAuthenticationEntryPoint;
 import io.sillysillyman.core.auth.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

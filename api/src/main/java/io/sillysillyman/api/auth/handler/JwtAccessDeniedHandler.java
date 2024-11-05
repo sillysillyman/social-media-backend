@@ -1,4 +1,4 @@
-package io.sillysillyman.api.controller.auth.handler;
+package io.sillysillyman.api.auth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.sillysillyman.api.common.dto.ErrorResponse;
@@ -10,32 +10,32 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
-@Slf4j(topic = "JwtAuthenticationEntryPoint")
+@Slf4j(topic = "JwtAccessDeniedHandler")
 @Component
-public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
     private final ObjectMapper objectMapper;
 
     @Override
-    public void commence(
+    public void handle(
         HttpServletRequest request,
         HttpServletResponse response,
-        AuthenticationException authException
+        AccessDeniedException accessDeniedException
     ) throws IOException, ServletException {
-        log.error("Unauthorized error: {}", authException.getMessage());
+        log.error("Access denied error: {}", accessDeniedException.getMessage());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
         ErrorResponse errorResponse = ErrorResponse.of(
-            authException.getMessage(),
-            HttpStatus.UNAUTHORIZED.value(),
-            HttpStatus.UNAUTHORIZED.name()
+            accessDeniedException.getMessage(),
+            HttpStatus.FORBIDDEN.value(),
+            HttpStatus.FORBIDDEN.name()
         );
 
         objectMapper.writeValue(response.getOutputStream(), errorResponse);

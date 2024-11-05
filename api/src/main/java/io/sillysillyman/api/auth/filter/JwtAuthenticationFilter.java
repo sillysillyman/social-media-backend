@@ -1,4 +1,4 @@
-package io.sillysillyman.api.controller.auth.filter;
+package io.sillysillyman.api.auth.filter;
 
 import io.sillysillyman.core.auth.constants.JwtConstants;
 import io.sillysillyman.core.auth.util.JwtUtil;

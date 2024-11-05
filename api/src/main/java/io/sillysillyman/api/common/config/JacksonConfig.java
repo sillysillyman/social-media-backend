@@ -1,4 +1,4 @@
-package io.sillysillyman.core.common.config;
+package io.sillysillyman.api.common.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
