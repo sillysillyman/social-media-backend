@@ -1,4 +1,4 @@
-package io.sillysillyman.core.auth.config;
+package io.sillysillyman.api.controller.auth.config;
 
 import io.jsonwebtoken.security.Keys;
 import io.sillysillyman.core.auth.properties.JwtProperties;

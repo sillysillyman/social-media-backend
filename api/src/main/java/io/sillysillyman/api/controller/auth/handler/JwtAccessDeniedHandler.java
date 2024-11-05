@@ -1,7 +1,7 @@
-package io.sillysillyman.core.auth.handler;
+package io.sillysillyman.api.controller.auth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.sillysillyman.core.common.dto.ErrorResponse;
+import io.sillysillyman.api.common.dto.ErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
