@@ -37,7 +37,8 @@ public class CommentEntity extends BaseEntity {
     private UserEntity user;
 
     @Builder
-    public CommentEntity(String content, PostEntity post, UserEntity user) {
+    private CommentEntity(Long id, String content, PostEntity post, UserEntity user) {
+        this.id = id;
         this.content = content;
         this.post = post;
         this.user = user;
@@ -45,6 +46,7 @@ public class CommentEntity extends BaseEntity {
 
     public static CommentEntity from(Comment comment) {
         return CommentEntity.builder()
+            .id(comment.getId())
             .content(comment.getContent())
             .post(PostEntity.from(comment.getPost()))
             .user(UserEntity.from(comment.getUser()))

@@ -32,13 +32,15 @@ public class PostEntity extends BaseEntity {
     private UserEntity user;
 
     @Builder
-    public PostEntity(String content, UserEntity user) {
+    private PostEntity(Long id, String content, UserEntity user) {
+        this.id = id;
         this.content = content;
         this.user = user;
     }
 
     public static PostEntity from(Post post) {
         return PostEntity.builder()
+            .id(post.getId())
             .content(post.getContent())
             .user(UserEntity.from(post.getUser()))
             .build();

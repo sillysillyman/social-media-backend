@@ -38,7 +38,14 @@ public class UserEntity extends BaseEntity {
     private Instant deletedAt;
 
     @Builder
-    public UserEntity(String username, String password, UserRole role, Instant deletedAt) {
+    private UserEntity(
+        Long id,
+        String username,
+        String password,
+        UserRole role,
+        Instant deletedAt
+    ) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.role = role;
@@ -47,6 +54,7 @@ public class UserEntity extends BaseEntity {
 
     public static UserEntity from(User user) {
         return UserEntity.builder()
+            .id(user.getId())
             .username(user.getUsername())
             .password(user.getPassword())
             .role(user.getRole())
