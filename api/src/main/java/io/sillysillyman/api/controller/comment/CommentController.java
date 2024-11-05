@@ -8,6 +8,7 @@ import io.sillysillyman.api.controller.comment.dto.CreateCommentRequest;
 import io.sillysillyman.api.controller.comment.dto.UpdateCommentRequest;
 import io.sillysillyman.core.auth.CustomUserDetails;
 import io.sillysillyman.core.domain.comment.service.CommentService;
+import io.sillysillyman.core.domain.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -40,7 +41,9 @@ public class CommentController {
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(
             SingleItemResponse.from(
-                commentService.createComment(postId, createCommentRequest, userDetails.user())
+                CommentResponse.from(commentService.createComment(postId, createCommentRequest,
+                    User.from(userDetails.userEntity()))
+                )
             )
         );
     }
@@ -51,7 +54,9 @@ public class CommentController {
         @PageableDefault(sort = "createdAt") Pageable pageable
     ) {
         return ResponseEntity.ok(
-            PagedListResponse.from(commentService.getComments(postId, pageable))
+            PagedListResponse.from(
+                commentService.getComments(postId, pageable).map(CommentResponse::from)
+            )
         );
     }
 
@@ -62,7 +67,12 @@ public class CommentController {
         @Valid @RequestBody UpdateCommentRequest updateCommentRequest,
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        commentService.updateComment(postId, commentId, updateCommentRequest, userDetails.user());
+        commentService.updateComment(
+            postId,
+            commentId,
+            updateCommentRequest,
+            User.from(userDetails.userEntity())
+        );
         return ResponseEntity.noContent().build();
     }
 
@@ -72,7 +82,7 @@ public class CommentController {
         @PathVariable Long commentId,
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        commentService.deleteComment(postId, commentId, userDetails.user());
+        commentService.deleteComment(postId, commentId, User.from(userDetails.userEntity()));
         return ResponseEntity.noContent().build();
     }
 }

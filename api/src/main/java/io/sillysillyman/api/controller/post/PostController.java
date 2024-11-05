@@ -6,6 +6,7 @@ import io.sillysillyman.api.controller.post.dto.PostResponse;
 import io.sillysillyman.api.controller.post.dto.UpdatePostRequest;
 import io.sillysillyman.core.auth.CustomUserDetails;
 import io.sillysillyman.core.domain.post.service.PostService;
+import io.sillysillyman.core.domain.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -34,14 +35,18 @@ public class PostController {
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(
             SingleItemResponse.from(
-                postService.createPost(createPostRequest, userDetails.user())
+                PostResponse.from(
+                    postService.createPost(createPostRequest, User.from(userDetails.userEntity()))
+                )
             )
         );
     }
 
     @GetMapping("/{postId}")
     public ResponseEntity<SingleItemResponse<PostResponse>> getPost(@PathVariable Long postId) {
-        return ResponseEntity.ok(SingleItemResponse.from(postService.getPost(postId)));
+        return ResponseEntity.ok(
+            SingleItemResponse.from(PostResponse.from(postService.getPost(postId)))
+        );
     }
 
     @PutMapping("/{postId}")
@@ -50,7 +55,7 @@ public class PostController {
         @RequestBody UpdatePostRequest updatePostRequest,
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        postService.updatePost(postId, updatePostRequest, userDetails.user());
+        postService.updatePost(postId, updatePostRequest, User.from(userDetails.userEntity()));
         return ResponseEntity.noContent().build();
     }
 
@@ -59,7 +64,7 @@ public class PostController {
         @PathVariable Long postId,
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        postService.deletePost(postId, userDetails.user());
+        postService.deletePost(postId, User.from(userDetails.userEntity()));
         return ResponseEntity.noContent().build();
     }
 }

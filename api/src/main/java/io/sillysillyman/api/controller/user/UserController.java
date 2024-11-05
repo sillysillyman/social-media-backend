@@ -9,6 +9,7 @@ import io.sillysillyman.api.controller.user.dto.SignupRequest;
 import io.sillysillyman.api.controller.user.dto.UserResponse;
 import io.sillysillyman.core.auth.CustomUserDetails;
 import io.sillysillyman.core.domain.post.service.PostService;
+import io.sillysillyman.core.domain.user.User;
 import io.sillysillyman.core.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,23 +38,29 @@ public class UserController {
 
     @PostMapping("/signup")
     ResponseEntity<SingleItemResponse<UserResponse>> signup(
-        @Valid @RequestBody SignupRequest signupRequest) {
+        @Valid @RequestBody SignupRequest signupRequest
+    ) {
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(SingleItemResponse.from(userService.signup(signupRequest)));
+            .body(SingleItemResponse.from(UserResponse.from(userService.signup(signupRequest))));
     }
 
     @GetMapping("/{userId}")
     ResponseEntity<SingleItemResponse<UserResponse>> getUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(SingleItemResponse.from(userService.getUser(userId)));
+        return ResponseEntity.ok(
+            SingleItemResponse.from(UserResponse.from(userService.getUser(userId)))
+        );
     }
 
     @GetMapping("/{userId}/posts")
-    ResponseEntity<PagedListResponse<PostResponse>> getUserPosts(@PathVariable Long userId,
+    ResponseEntity<PagedListResponse<PostResponse>> getUserPosts(
+        @PathVariable Long userId,
         @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return ResponseEntity.ok(
-            PagedListResponse.from(postService.getUserPosts(userId, pageable))
+            PagedListResponse.from(
+                postService.getUserPosts(userId, pageable).map(PostResponse::from)
+            )
         );
     }
 
@@ -63,7 +70,10 @@ public class UserController {
         @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return ResponseEntity.ok(
-            PagedListResponse.from(postService.getMyPosts(userDetails.user(), pageable))
+            PagedListResponse.from(
+                postService.getMyPosts(User.from(userDetails.userEntity()), pageable)
+                    .map(PostResponse::from)
+            )
         );
     }
 
@@ -72,13 +82,13 @@ public class UserController {
         @Valid @RequestBody ChangePasswordRequest changePasswordRequest,
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        userService.changePassword(changePasswordRequest, userDetails.user());
+        userService.changePassword(changePasswordRequest, User.from(userDetails.userEntity()));
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/me")
     ResponseEntity<Void> withdraw(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        userService.withdraw(userDetails.user());
+        userService.withdraw(User.from(userDetails.userEntity()));
         return ResponseEntity.noContent().build();
     }
 }
