@@ -24,7 +24,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<SingleItemResponse<TokenResponse>> login(
         @Valid @RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(SingleItemResponse.from(authService.login(loginRequest)));
+        return ResponseEntity.ok(
+            SingleItemResponse.from(TokenResponse.from(authService.login(loginRequest)))
+        );
     }
 
     @PostMapping("/logout")
@@ -37,6 +39,8 @@ public class AuthController {
     public ResponseEntity<SingleItemResponse<TokenResponse>> refresh(
         @RequestHeader(JwtConstants.REFRESH_HEADER) String refreshToken
     ) {
-        return ResponseEntity.ok(SingleItemResponse.from(authService.refresh(refreshToken)));
+        return ResponseEntity.ok(
+            SingleItemResponse.from(TokenResponse.from(authService.refresh(refreshToken)))
+        );
     }
 }

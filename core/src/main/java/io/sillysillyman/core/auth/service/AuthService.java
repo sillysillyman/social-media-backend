@@ -1,8 +1,8 @@
 package io.sillysillyman.core.auth.service;
 
 import io.sillysillyman.core.auth.CustomUserDetails;
+import io.sillysillyman.core.auth.Token;
 import io.sillysillyman.core.auth.command.LoginCommand;
-import io.sillysillyman.core.auth.dto.TokenResponse;
 import io.sillysillyman.core.auth.exception.AuthErrorCode;
 import io.sillysillyman.core.auth.exception.TokenStorageErrorCode;
 import io.sillysillyman.core.auth.exception.detail.AuthenticationFailedException;
@@ -32,7 +32,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
-    public TokenResponse login(LoginCommand loginCommand) {
+    public Token login(LoginCommand loginCommand) {
 
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -51,7 +51,7 @@ public class AuthService {
 
             refreshTokenRepository.save(username, refreshToken);
 
-            return TokenResponse.of(accessToken, refreshToken);
+            return Token.of(accessToken, refreshToken);
         } catch (AuthenticationException e) {
             throw new AuthenticationFailedException(AuthErrorCode.AUTHENTICATION_FAILED, e);
         }
@@ -69,7 +69,7 @@ public class AuthService {
         log.info("User logged out successfully: {}", username);
     }
 
-    public TokenResponse refresh(String refreshToken) {
+    public Token refresh(String refreshToken) {
         if (!jwtUtil.isTokenValid(refreshToken)) {
             throw new InvalidTokenException(AuthErrorCode.INVALID_TOKEN);
         }
@@ -92,6 +92,6 @@ public class AuthService {
         refreshTokenRepository.deleteByUsername(username);
         refreshTokenRepository.save(username, newRefreshToken);
 
-        return TokenResponse.of(newAccessToken, newRefreshToken);
+        return Token.of(newAccessToken, newRefreshToken);
     }
 }
