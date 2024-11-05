@@ -1,5 +1,6 @@
 package io.sillysillyman.core.common;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import java.time.Instant;
@@ -13,6 +14,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 public abstract class BaseEntity {
 
+    @Column(nullable = false, updatable = false)
     @CreatedDate
     private Instant createdAt;
 
