@@ -7,6 +7,7 @@ import io.sillysillyman.core.auth.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -49,6 +50,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(it -> it
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/users/signup").permitAll()
+                .requestMatchers(HttpMethod.GET, "/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(AbstractHttpConfigurer::disable)
