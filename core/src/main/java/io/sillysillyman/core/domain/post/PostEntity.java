@@ -29,18 +29,18 @@ public class PostEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private UserEntity userEntity;
+    private UserEntity user;
 
     @Builder
-    public PostEntity(String content, UserEntity userEntity) {
+    public PostEntity(String content, UserEntity user) {
         this.content = content;
-        this.userEntity = userEntity;
+        this.user = user;
     }
 
     public static PostEntity from(Post post) {
         return PostEntity.builder()
             .content(post.getContent())
-            .userEntity(UserEntity.from(post.getUser()))
+            .user(UserEntity.from(post.getUser()))
             .build();
     }
 }

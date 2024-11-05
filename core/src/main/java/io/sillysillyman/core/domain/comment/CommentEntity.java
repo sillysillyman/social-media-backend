@@ -30,24 +30,24 @@ public class CommentEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
-    private PostEntity postEntity;
+    private PostEntity post;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private UserEntity userEntity;
+    private UserEntity user;
 
     @Builder
-    public CommentEntity(String content, PostEntity postEntity, UserEntity userEntity) {
+    public CommentEntity(String content, PostEntity post, UserEntity user) {
         this.content = content;
-        this.postEntity = postEntity;
-        this.userEntity = userEntity;
+        this.post = post;
+        this.user = user;
     }
 
     public static CommentEntity from(Comment comment) {
         return CommentEntity.builder()
             .content(comment.getContent())
-            .postEntity(PostEntity.from(comment.getPost()))
-            .userEntity(UserEntity.from(comment.getUser()))
+            .post(PostEntity.from(comment.getPost()))
+            .user(UserEntity.from(comment.getUser()))
             .build();
     }
 }

@@ -25,8 +25,8 @@ public class Comment {
     public static Comment from(CommentEntity commentEntity) {
         return Comment.builder()
             .id(commentEntity.getId())
-            .post(Post.from(commentEntity.getPostEntity()))
-            .user(User.from(commentEntity.getUserEntity()))
+            .post(Post.from(commentEntity.getPost()))
+            .user(User.from(commentEntity.getUser()))
             .content(commentEntity.getContent())
             .build();
     }

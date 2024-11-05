@@ -22,7 +22,7 @@ public class Post {
     public static Post from(PostEntity postEntity) {
         return Post.builder()
             .id(postEntity.getId())
-            .user(User.from(postEntity.getUserEntity()))
+            .user(User.from(postEntity.getUser()))
             .content(postEntity.getContent())
             .build();
     }
