@@ -57,7 +57,7 @@ public class UserService {
     public void changePassword(ChangePasswordCommand changePasswordCommand, User user) {
         validateCurrentPasswordMatches(
             user.getPassword(),
-            passwordEncoder.encode(changePasswordCommand.getCurrentPassword())
+            changePasswordCommand.getCurrentPassword()
         );
         validateNewPasswordIsDifferent(
             changePasswordCommand.getCurrentPassword(),
@@ -87,7 +87,7 @@ public class UserService {
     }
 
     private void validateCurrentPasswordMatches(String currentPassword, String providedPassword) {
-        if (!Objects.equals(currentPassword, providedPassword)) {
+        if (!passwordEncoder.matches(providedPassword, currentPassword)) {
             throw new PasswordMismatchException(UserErrorCode.PASSWORD_MISMATCH);
         }
     }
