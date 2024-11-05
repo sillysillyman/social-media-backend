@@ -1,8 +1,8 @@
 package io.sillysillyman.core.domain.post;
 
 import io.sillysillyman.core.common.BaseEntity;
+import io.sillysillyman.core.domain.post.command.UpdatePostCommand;
 import io.sillysillyman.core.domain.user.User;
-import io.sillysillyman.socialmediabackend.domain.post.dto.UpdatePostRequest;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -36,9 +36,9 @@ public class Post extends BaseEntity {
         this.user = user;
     }
 
-    public void update(UpdatePostRequest updatePostRequest) {
-        if (updatePostRequest.getContent() != null) {
-            this.content = updatePostRequest.getContent();
+    public void update(UpdatePostCommand updatePostCommand) {
+        if (updatePostCommand.getContent() != null) {
+            this.content = updatePostCommand.getContent();
         }
     }
 }

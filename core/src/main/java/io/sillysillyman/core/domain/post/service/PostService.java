@@ -3,13 +3,13 @@ package io.sillysillyman.core.domain.post.service;
 import io.sillysillyman.core.auth.exception.AuthErrorCode;
 import io.sillysillyman.core.auth.exception.detail.UnauthorizedAccessException;
 import io.sillysillyman.core.domain.post.Post;
+import io.sillysillyman.core.domain.post.command.CreatePostCommand;
+import io.sillysillyman.core.domain.post.command.UpdatePostCommand;
 import io.sillysillyman.core.domain.post.exception.PostErrorCode;
 import io.sillysillyman.core.domain.post.exception.detail.PostNotFoundException;
 import io.sillysillyman.core.domain.post.repository.PostRepository;
 import io.sillysillyman.core.domain.user.User;
-import io.sillysillyman.socialmediabackend.domain.post.dto.CreatePostRequest;
 import io.sillysillyman.socialmediabackend.domain.post.dto.PostResponse;
-import io.sillysillyman.socialmediabackend.domain.post.dto.UpdatePostRequest;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,8 +30,8 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse createPost(CreatePostRequest createPostRequest, User user) {
-        Post post = Post.builder().content(createPostRequest.getContent()).user(user).build();
+    public PostResponse createPost(CreatePostCommand createPostCommand, User user) {
+        Post post = Post.builder().content(createPostCommand.getContent()).user(user).build();
         postRepository.save(post);
         return PostResponse.from(post);
     }
@@ -53,10 +53,10 @@ public class PostService {
     }
 
     @Transactional
-    public void updatePost(Long postId, UpdatePostRequest updatePostRequest, User user) {
+    public void updatePost(Long postId, UpdatePostCommand updatePostCommand, User user) {
         Post post = getById(postId);
         validatePostOwnership(user.getId(), post.getUser().getId());
-        post.update(updatePostRequest);
+        post.update(updatePostCommand);
     }
 
     @Transactional

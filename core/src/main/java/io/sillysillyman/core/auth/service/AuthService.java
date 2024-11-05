@@ -1,7 +1,7 @@
 package io.sillysillyman.core.auth.service;
 
 import io.sillysillyman.core.auth.CustomUserDetails;
-import io.sillysillyman.core.auth.dto.LoginRequest;
+import io.sillysillyman.core.auth.command.LoginCommand;
 import io.sillysillyman.core.auth.dto.TokenResponse;
 import io.sillysillyman.core.auth.exception.AuthErrorCode;
 import io.sillysillyman.core.auth.exception.TokenStorageErrorCode;
@@ -32,13 +32,13 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
-    public TokenResponse login(LoginRequest loginRequest) {
+    public TokenResponse login(LoginCommand loginCommand) {
 
         try {
             Authentication authentication = authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken.unauthenticated(
-                    loginRequest.getUsername(),
-                    loginRequest.getPassword()
+                    loginCommand.getUsername(),
+                    loginCommand.getPassword()
                 )
             );
 

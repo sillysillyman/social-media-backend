@@ -1,9 +1,9 @@
 package io.sillysillyman.core.domain.comment;
 
 import io.sillysillyman.core.common.BaseEntity;
+import io.sillysillyman.core.domain.comment.command.UpdateCommentCommand;
 import io.sillysillyman.core.domain.post.Post;
 import io.sillysillyman.core.domain.user.User;
-import io.sillysillyman.socialmediabackend.domain.comment.dto.UpdateCommentRequest;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -42,7 +42,7 @@ public class Comment extends BaseEntity {
         this.user = user;
     }
 
-    public void update(UpdateCommentRequest updateCommentRequest) {
-        this.content = updateCommentRequest.getContent();
+    public void update(UpdateCommentCommand updateCommentCommand) {
+        this.content = updateCommentCommand.getContent();
     }
 }

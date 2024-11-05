@@ -1,12 +1,13 @@
 package io.sillysillyman.api.controller.user.dto;
 
+import io.sillysillyman.core.domain.user.command.ChangePasswordCommand;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
-public class ChangePasswordRequest {
+public class ChangePasswordRequest implements ChangePasswordCommand {
 
     @NotBlank(message = "current password must not be blank")
     String currentPassword;

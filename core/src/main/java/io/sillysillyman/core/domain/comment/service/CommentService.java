@@ -3,12 +3,15 @@ package io.sillysillyman.core.domain.comment.service;
 import io.sillysillyman.core.auth.exception.AuthErrorCode;
 import io.sillysillyman.core.auth.exception.detail.UnauthorizedAccessException;
 import io.sillysillyman.core.domain.comment.Comment;
+import io.sillysillyman.core.domain.comment.command.CreateCommentCommand;
+import io.sillysillyman.core.domain.comment.command.UpdateCommentCommand;
 import io.sillysillyman.core.domain.comment.exception.CommentErrorCode;
 import io.sillysillyman.core.domain.comment.exception.detail.CommentNotBelongToPostException;
 import io.sillysillyman.core.domain.comment.exception.detail.CommentNotFoundException;
 import io.sillysillyman.core.domain.comment.repository.CommentRepository;
 import io.sillysillyman.core.domain.post.Post;
 import io.sillysillyman.core.domain.post.service.PostService;
+import io.sillysillyman.core.domain.user.User;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,12 +36,12 @@ public class CommentService {
     @Transactional
     public CommentResponse createComment(
         Long postId,
-        CreateCommentRequest createCommentRequest,
+        CreateCommentCommand createCommentCommand,
         User user
     ) {
         Post post = postService.getById(postId);
         Comment comment = Comment.builder()
-            .content(createCommentRequest.getContent())
+            .content(createCommentCommand.getContent())
             .post(post)
             .user(user)
             .build();
@@ -55,7 +58,7 @@ public class CommentService {
     public void updateComment(
         Long postId,
         Long commentId,
-        UpdateCommentRequest updateCommentRequest,
+        UpdateCommentCommand updateCommentCommand,
         User user
     ) {
         Comment comment = getById(commentId);
@@ -63,7 +66,7 @@ public class CommentService {
         validateCommentOwnership(user.getId(), comment.getUser().getId());
         validateCommentPostId(postId, comment.getPost().getId());
 
-        comment.update(updateCommentRequest);
+        comment.update(updateCommentCommand);
     }
 
     @Transactional
@@ -84,8 +87,7 @@ public class CommentService {
 
     private void validateCommentPostId(Long requestPostId, Long commentPostId) {
         if (!Objects.equals(requestPostId, commentPostId)) {
-            throw new CommentNotBelongToPostException(
-                io.sillysillyman.socialmediabackend.domain.comment.exception.CommentErrorCode.COMMENT_NOT_BELONG_TO_POST);
+            throw new CommentNotBelongToPostException(CommentErrorCode.COMMENT_NOT_BELONG_TO_POST);
         }
     }
 }

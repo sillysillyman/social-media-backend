@@ -1,12 +1,13 @@
 package io.sillysillyman.api.controller.user.dto;
 
+import io.sillysillyman.core.domain.user.command.SignupCommand;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
-public class SignupRequest {
+public class SignupRequest implements SignupCommand {
 
     @NotBlank(message = "username must not be blank")
     String username;

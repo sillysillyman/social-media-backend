@@ -2,14 +2,14 @@ package io.sillysillyman.core.domain.user.service;
 
 import io.sillysillyman.core.domain.user.User;
 import io.sillysillyman.core.domain.user.UserRole;
+import io.sillysillyman.core.domain.user.command.ChangePasswordCommand;
+import io.sillysillyman.core.domain.user.command.SignupCommand;
 import io.sillysillyman.core.domain.user.exception.UserErrorCode;
 import io.sillysillyman.core.domain.user.exception.detail.DuplicateUsernameException;
 import io.sillysillyman.core.domain.user.exception.detail.PasswordMismatchException;
 import io.sillysillyman.core.domain.user.exception.detail.SamePasswordException;
 import io.sillysillyman.core.domain.user.exception.detail.UserNotFoundException;
 import io.sillysillyman.core.domain.user.repository.UserRepository;
-import io.sillysillyman.socialmediabackend.domain.user.dto.ChangePasswordRequest;
-import io.sillysillyman.socialmediabackend.domain.user.dto.SignupRequest;
 import io.sillysillyman.socialmediabackend.domain.user.dto.UserResponse;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -32,11 +32,11 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse signup(SignupRequest signupRequest) {
-        validateUsernameUniqueness(signupRequest.getUsername());
+    public UserResponse signup(SignupCommand signupCommand) {
+        validateUsernameUniqueness(signupCommand.getUsername());
         User user = User.builder()
-            .username(signupRequest.getUsername())
-            .password(passwordEncoder.encode(signupRequest.getPassword()))
+            .username(signupCommand.getUsername())
+            .password(passwordEncoder.encode(signupCommand.getPassword()))
             .role(UserRole.USER)
             .build();
         userRepository.save(user);
@@ -49,16 +49,16 @@ public class UserService {
     }
 
     @Transactional
-    public void changePassword(ChangePasswordRequest changePasswordRequest, User user) {
+    public void changePassword(ChangePasswordCommand changePasswordCommand, User user) {
         validateCurrentPasswordMatches(
             user.getPassword(),
-            passwordEncoder.encode(changePasswordRequest.getCurrentPassword())
+            passwordEncoder.encode(changePasswordCommand.getCurrentPassword())
         );
         validateNewPasswordIsDifferent(
-            changePasswordRequest.getCurrentPassword(),
-            changePasswordRequest.getNewPassword()
+            changePasswordCommand.getCurrentPassword(),
+            changePasswordCommand.getNewPassword()
         );
-        user.changePassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+        user.changePassword(passwordEncoder.encode(changePasswordCommand.getNewPassword()));
     }
 
     @Transactional

@@ -1,9 +1,10 @@
 package io.sillysillyman.api.controller.post.dto;
 
+import io.sillysillyman.core.domain.post.command.UpdatePostCommand;
 import lombok.Getter;
 
 @Getter
-public class UpdatePostRequest {
+public class UpdatePostRequest implements UpdatePostCommand {
 
     private String content;
 
