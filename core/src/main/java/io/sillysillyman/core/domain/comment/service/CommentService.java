@@ -3,6 +3,7 @@ package io.sillysillyman.core.domain.comment.service;
 import io.sillysillyman.core.auth.exception.AuthErrorCode;
 import io.sillysillyman.core.auth.exception.detail.UnauthorizedAccessException;
 import io.sillysillyman.core.domain.comment.Comment;
+import io.sillysillyman.core.domain.comment.CommentEntity;
 import io.sillysillyman.core.domain.comment.command.CreateCommentCommand;
 import io.sillysillyman.core.domain.comment.command.UpdateCommentCommand;
 import io.sillysillyman.core.domain.comment.exception.CommentErrorCode;
@@ -28,13 +29,15 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public Comment getById(Long commentId) {
-        return commentRepository.findById(commentId).orElseThrow(() ->
-            new CommentNotFoundException(CommentErrorCode.COMMENT_NOT_FOUND)
+        return Comment.from(
+            commentRepository.findById(commentId).orElseThrow(
+                () -> new CommentNotFoundException(CommentErrorCode.COMMENT_NOT_FOUND)
+            )
         );
     }
 
     @Transactional
-    public CommentResponse createComment(
+    public Comment createComment(
         Long postId,
         CreateCommentCommand createCommentCommand,
         User user
@@ -45,13 +48,15 @@ public class CommentService {
             .post(post)
             .user(user)
             .build();
-        commentRepository.save(comment);
-        return CommentResponse.from(comment);
+
+        CommentEntity commentEntity = commentRepository.save(CommentEntity.from(comment));
+
+        return Comment.from(commentEntity);
     }
 
     @Transactional(readOnly = true)
-    public Page<CommentResponse> getComments(Long postId, Pageable pageable) {
-        return commentRepository.findByPostId(postId, pageable).map(CommentResponse::from);
+    public Page<Comment> getComments(Long postId, Pageable pageable) {
+        return commentRepository.findByPostId(postId, pageable).map(Comment::from);
     }
 
     @Transactional
@@ -67,6 +72,8 @@ public class CommentService {
         validateCommentPostId(postId, comment.getPost().getId());
 
         comment.update(updateCommentCommand);
+
+        commentRepository.save(CommentEntity.from(comment));
     }
 
     @Transactional
@@ -76,7 +83,7 @@ public class CommentService {
         validateCommentOwnership(user.getId(), comment.getUser().getId());
         validateCommentPostId(postId, comment.getPost().getId());
 
-        commentRepository.delete(comment);
+        commentRepository.delete(CommentEntity.from(comment));
     }
 
     private void validateCommentOwnership(Long userId, Long authorId) {

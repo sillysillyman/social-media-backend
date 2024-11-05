@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
-
 @Service
 public class UserService {
 
@@ -37,13 +36,16 @@ public class UserService {
     @Transactional
     public User signup(SignupCommand signupCommand) {
         validateUsernameUniqueness(signupCommand.getUsername());
+
         User user = User.builder()
             .username(signupCommand.getUsername())
             .password(passwordEncoder.encode(signupCommand.getPassword()))
             .role(UserRole.USER)
             .build();
-        userRepository.save(UserEntity.from(user));
-        return user;
+
+        UserEntity userEntity = userRepository.save(UserEntity.from(user));
+
+        return User.from(userEntity);
     }
 
     @Transactional(readOnly = true)
@@ -65,12 +67,17 @@ public class UserService {
             changePasswordCommand.getNewPassword(),
             changePasswordCommand.getConfirmNewPassword()
         );
+
         user.changePassword(passwordEncoder.encode(changePasswordCommand.getNewPassword()));
+
+        userRepository.save(UserEntity.from(user));
     }
 
     @Transactional
     public void withdraw(User user) {
         user.delete();
+
+        userRepository.save(UserEntity.from(user));
     }
 
     private void validateUsernameUniqueness(String username) {
