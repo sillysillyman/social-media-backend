@@ -1,12 +1,12 @@
 package io.sillysillyman.api.common;
 
-import io.sillysillyman.socialmediabackend.common.dto.ErrorResponse;
-import io.sillysillyman.socialmediabackend.domain.comment.exception.CommentErrorCode;
-import io.sillysillyman.socialmediabackend.domain.comment.exception.CommentException;
-import io.sillysillyman.socialmediabackend.domain.post.exception.PostErrorCode;
-import io.sillysillyman.socialmediabackend.domain.post.exception.PostException;
-import io.sillysillyman.socialmediabackend.domain.user.exception.UserErrorCode;
-import io.sillysillyman.socialmediabackend.domain.user.exception.UserException;
+import io.sillysillyman.api.common.dto.ErrorResponse;
+import io.sillysillyman.core.domain.comment.exception.CommentErrorCode;
+import io.sillysillyman.core.domain.comment.exception.CommentException;
+import io.sillysillyman.core.domain.post.exception.PostErrorCode;
+import io.sillysillyman.core.domain.post.exception.PostException;
+import io.sillysillyman.core.domain.user.exception.UserErrorCode;
+import io.sillysillyman.core.domain.user.exception.UserException;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
