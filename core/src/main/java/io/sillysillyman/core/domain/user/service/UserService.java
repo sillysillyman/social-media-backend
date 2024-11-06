@@ -36,6 +36,10 @@ public class UserService {
     @Transactional
     public User signup(SignupCommand signupCommand) {
         validateUsernameUniqueness(signupCommand.getUsername());
+        validateConfirmPasswordMatches(
+            signupCommand.getPassword(),
+            signupCommand.getConfirmPassword()
+        );
 
         User user = User.builder()
             .username(signupCommand.getUsername())
@@ -63,7 +67,7 @@ public class UserService {
             changePasswordCommand.getCurrentPassword(),
             changePasswordCommand.getNewPassword()
         );
-        validateConfirmNewPasswordMatches(
+        validateConfirmPasswordMatches(
             changePasswordCommand.getNewPassword(),
             changePasswordCommand.getConfirmNewPassword()
         );
@@ -98,8 +102,8 @@ public class UserService {
         }
     }
 
-    private void validateConfirmNewPasswordMatches(String newPassword, String confirmNewPassword) {
-        if (!Objects.equals(newPassword, confirmNewPassword)) {
+    private void validateConfirmPasswordMatches(String password, String confirmPassword) {
+        if (!Objects.equals(password, confirmPassword)) {
             throw new PasswordMismatchException(UserErrorCode.PASSWORD_MISMATCH);
         }
     }
