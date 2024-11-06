@@ -1,0 +1,30 @@
+@host = http://localhost:8080
+@contentType = application/json
+
+### 로그인 및 토큰 저장
+POST {{host}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+ "username": "testUser",
+ "password": "password123!"
+}
+
+> {%
+  client.global.set("accessToken", response.body["data"]["accessToken"]);
+  client.global.set("refreshToken", response.body["data"]["refreshToken"]);
+%}
+
+### 로그아웃
+POST {{host}}/api/v1/auth/logout
+Authorization: Bearer {{accessToken}}
+
+### 토큰 갱신 및 저장
+POST {{host}}/api/v1/auth/refresh
+Content-Type: {{contentType}}
+Refresh: {{refreshToken}}
+
+> {%
+  client.global.set("accessToken", response.body["data"]["accessToken"]);
+  client.global.set("refreshToken", response.body["data"]["refreshToken"]);
+%}
