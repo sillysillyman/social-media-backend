@@ -321,7 +321,6 @@ public class CommentServiceTest {
         @DisplayName("존재하지 않는 댓글 수정 시도")
         void throwsExceptionWhenCommentNotFound() {
             // given
-
             UpdateCommentCommand command = () -> UPDATED_CONTENT;
 
             given(commentRepository.findById(NON_EXISTENT_ID)).willReturn(Optional.empty());
