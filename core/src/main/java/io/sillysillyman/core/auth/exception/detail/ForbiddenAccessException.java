@@ -3,9 +3,9 @@ package io.sillysillyman.core.auth.exception.detail;
 import io.sillysillyman.core.auth.exception.AuthErrorCode;
 import io.sillysillyman.core.auth.exception.CustomAuthenticationException;
 
-public class UnauthorizedAccessException extends CustomAuthenticationException {
+public class ForbiddenAccessException extends CustomAuthenticationException {
 
-    public UnauthorizedAccessException(AuthErrorCode authErrorCode) {
+    public ForbiddenAccessException(AuthErrorCode authErrorCode) {
         super(authErrorCode);
     }
 }

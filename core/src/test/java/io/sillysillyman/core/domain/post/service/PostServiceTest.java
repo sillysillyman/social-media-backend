@@ -7,7 +7,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 import io.sillysillyman.core.auth.exception.AuthErrorCode;
-import io.sillysillyman.core.auth.exception.detail.UnauthorizedAccessException;
+import io.sillysillyman.core.auth.exception.detail.ForbiddenAccessException;
 import io.sillysillyman.core.domain.post.Post;
 import io.sillysillyman.core.domain.post.PostEntity;
 import io.sillysillyman.core.domain.post.command.CreatePostCommand;
@@ -442,8 +442,8 @@ class PostServiceTest {
 
             // then
             Assertions.assertThatThrownBy(when)
-                .isInstanceOf(UnauthorizedAccessException.class)
-                .hasMessage(AuthErrorCode.UNAUTHORIZED_ACCESS.getMessage());
+                .isInstanceOf(ForbiddenAccessException.class)
+                .hasMessage(AuthErrorCode.FORBIDDEN_ACCESS.getMessage());
 
             verifyRepositoryFindById(post.getId());
         }
@@ -489,7 +489,7 @@ class PostServiceTest {
         void throwsExceptionWhenUnauthorizedUser() {
             // given
             User unauthorizedUser = createUnauthorizedUser();
-            
+
             given(postRepository.findById(postEntity.getId()))
                 .willReturn(Optional.of(postEntity));
 
@@ -498,8 +498,8 @@ class PostServiceTest {
 
             // then
             Assertions.assertThatThrownBy(when)
-                .isInstanceOf(UnauthorizedAccessException.class)
-                .hasMessage(AuthErrorCode.UNAUTHORIZED_ACCESS.getMessage());
+                .isInstanceOf(ForbiddenAccessException.class)
+                .hasMessage(AuthErrorCode.FORBIDDEN_ACCESS.getMessage());
 
             verifyRepositoryFindById(post.getId());
         }

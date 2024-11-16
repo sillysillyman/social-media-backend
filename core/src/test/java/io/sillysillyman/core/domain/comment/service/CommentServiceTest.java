@@ -7,7 +7,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 import io.sillysillyman.core.auth.exception.AuthErrorCode;
-import io.sillysillyman.core.auth.exception.detail.UnauthorizedAccessException;
+import io.sillysillyman.core.auth.exception.detail.ForbiddenAccessException;
 import io.sillysillyman.core.domain.comment.Comment;
 import io.sillysillyman.core.domain.comment.CommentEntity;
 import io.sillysillyman.core.domain.comment.command.CreateCommentCommand;
@@ -358,8 +358,8 @@ public class CommentServiceTest {
 
             // then
             assertThatThrownBy(when)
-                .isInstanceOf(UnauthorizedAccessException.class)
-                .hasMessage(AuthErrorCode.UNAUTHORIZED_ACCESS.getMessage());
+                .isInstanceOf(ForbiddenAccessException.class)
+                .hasMessage(AuthErrorCode.FORBIDDEN_ACCESS.getMessage());
 
             verifyRepositoryFindById(comment.getId());
         }
@@ -443,8 +443,8 @@ public class CommentServiceTest {
 
             // then
             assertThatThrownBy(when)
-                .isInstanceOf(UnauthorizedAccessException.class)
-                .hasMessage(AuthErrorCode.UNAUTHORIZED_ACCESS.getMessage());
+                .isInstanceOf(ForbiddenAccessException.class)
+                .hasMessage(AuthErrorCode.FORBIDDEN_ACCESS.getMessage());
 
             verifyRepositoryFindById(comment.getId());
         }
