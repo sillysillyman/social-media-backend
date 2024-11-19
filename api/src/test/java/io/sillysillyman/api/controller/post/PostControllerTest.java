@@ -34,8 +34,6 @@ class PostControllerTest {
 
     private final static String BASE_URL = "/api/v1/posts";
     private final static Long NON_EXISTENT_ID = 999L;
-    private Long userId;
-    private Long postId = 1L;
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,6 +42,8 @@ class PostControllerTest {
     private EntityManagerFactory emf;
 
     private EntityManager em;
+    private Long userId;
+    private Long postId = 1L;
 
     private void withTransaction(Consumer<EntityManager> block) {
         em.getTransaction().begin();
@@ -98,7 +98,7 @@ class PostControllerTest {
             setupBefore = TestExecutionEvent.TEST_EXECUTION
         )
         void given_ValidContent_when_CreatePost_ReturnCreatedResponse() {
-            String content = """
+            String requestBody = """
                 {
                     "content": "Test Content"
                 }
@@ -107,7 +107,7 @@ class PostControllerTest {
             performPost(
                 mockMvc,
                 BASE_URL,
-                content,
+                requestBody,
                 status().isCreated(),
                 jsonPath("$.data.postId").value(postId),
                 jsonPath("$.data.content").value("Test Content"),
@@ -120,7 +120,7 @@ class PostControllerTest {
         @Test
         @DisplayName("인증되지 않은 사용자의 게시물 생성 실패")
         void given_UnauthenticatedUser_when_CreatePost_then_ReturnUnauthorized() {
-            String content = """
+            String requestBody = """
                 {
                     "content": "Test Content"
                 }
@@ -129,7 +129,7 @@ class PostControllerTest {
             performPost(
                 mockMvc,
                 BASE_URL,
-                content,
+                requestBody,
                 status().isUnauthorized(),
                 jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.value()),
                 jsonPath("$.title").value(HttpStatus.UNAUTHORIZED.name())
@@ -143,7 +143,7 @@ class PostControllerTest {
             setupBefore = TestExecutionEvent.TEST_EXECUTION
         )
         void given_EmptyContent_when_CreatePost_then_ReturnBadRequest() {
-            String content = """
+            String requestBody = """
                 {
                     "content": ""
                 }
@@ -152,7 +152,7 @@ class PostControllerTest {
             performPost(
                 mockMvc,
                 BASE_URL,
-                content,
+                requestBody,
                 status().isBadRequest(),
                 jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()),
                 jsonPath("$.title").value(HttpStatus.BAD_REQUEST.name())
@@ -250,13 +250,13 @@ class PostControllerTest {
             setupBefore = TestExecutionEvent.TEST_EXECUTION
         )
         void given_ValidContent_when_UpdatePost_then_ReturnNoContent() {
-            String content = """
+            String requestBody = """
                 {
                     "content": "Updated Content"
                 }
                 """;
 
-            performPut(mockMvc, BASE_URL + '/' + postId, content, status().isNoContent());
+            performPut(mockMvc, BASE_URL + '/' + postId, requestBody, status().isNoContent());
             performGet(
                 mockMvc,
                 BASE_URL + '/' + postId,
@@ -268,7 +268,7 @@ class PostControllerTest {
         @Test
         @DisplayName("인증되지 않은 사용자의 게시물 수정 실패")
         void given_UnauthenticatedUser_when_UpdatePost_then_ReturnUnauthorized() {
-            String content = """
+            String requestBody = """
                 {
                     "content": "Updated Content"
                 }
@@ -277,7 +277,7 @@ class PostControllerTest {
             performPut(
                 mockMvc,
                 BASE_URL + '/' + postId,
-                content,
+                requestBody,
                 status().isUnauthorized(),
                 jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.value()),
                 jsonPath("$.title").value(HttpStatus.UNAUTHORIZED.name())
@@ -291,7 +291,7 @@ class PostControllerTest {
             setupBefore = TestExecutionEvent.TEST_EXECUTION
         )
         void given_NonExistentPostId_when_UpdatePost_then_ReturnNotFound() {
-            String content = """
+            String requestBody = """
                 {
                     "content": "Updated Content"
                 }
@@ -300,7 +300,7 @@ class PostControllerTest {
             performPut(
                 mockMvc,
                 BASE_URL + '/' + NON_EXISTENT_ID,
-                content,
+                requestBody,
                 status().isNotFound(),
                 jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()),
                 jsonPath("$.title").value(HttpStatus.NOT_FOUND.name())
@@ -314,7 +314,7 @@ class PostControllerTest {
             setupBefore = TestExecutionEvent.TEST_EXECUTION
         )
         void given_UnauthorizedUser_when_UpdatePost_then_ReturnForbidden() {
-            String content = """
+            String requestBody = """
                 {
                     "content": "Updated Content"
                 }
@@ -323,7 +323,7 @@ class PostControllerTest {
             performPut(
                 mockMvc,
                 BASE_URL + '/' + postId,
-                content,
+                requestBody,
                 status().isForbidden(),
                 jsonPath("$.status").value(HttpStatus.FORBIDDEN.value()),
                 jsonPath("$.title").value(HttpStatus.FORBIDDEN.name())
