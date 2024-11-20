@@ -79,12 +79,12 @@ class UserControllerTest {
     @AfterEach
     void tearDown() {
         withTransaction(em -> {
-            em.createQuery("DELETE FROM UserEntity").executeUpdate();
             em.createQuery("DELETE FROM PostEntity").executeUpdate();
+            em.createQuery("DELETE FROM UserEntity").executeUpdate();
 
-            em.createNativeQuery("ALTER TABLE users ALTER COLUMN id RESTART WITH 1")
-                .executeUpdate();
             em.createNativeQuery("ALTER TABLE posts ALTER COLUMN id RESTART WITH 1")
+                .executeUpdate();
+            em.createNativeQuery("ALTER TABLE users ALTER COLUMN id RESTART WITH 1")
                 .executeUpdate();
         });
         em.close();
@@ -94,21 +94,21 @@ class UserControllerTest {
     @DisplayName("회원가입 API")
     class Signup {
 
+        private static final String REQUEST_BODY = """
+            {
+                "username": "%s",
+                "password": "%s",
+                "confirmPassword": "%s"
+            }
+            """;
+
         @Test
         @DisplayName("회원가입 성공")
         void given_ValidSignupRequest_when_Signup_then_ReturnCreated() {
-            String requestBody = """
-                {
-                    "username": "newtester",
-                    "password": "password1!",
-                    "confirmPassword": "password1!"
-                }
-                """;
-
             performPost(
                 mockMvc,
                 BASE_URL + "/signup",
-                requestBody,
+                REQUEST_BODY.formatted("newtester", "password1!", "password1!"),
                 status().isCreated(),
                 jsonPath("$.data.userId").exists(),
                 jsonPath("$.data.username").value("newtester")
@@ -118,39 +118,23 @@ class UserControllerTest {
         @Test
         @DisplayName("중복된 사용자명으로 회원가입 실패")
         void given_DuplicateUsername_when_Signup_then_ReturnBadRequest() {
-            String requestBody = """
-                {
-                    "username": "tester",
-                    "password": "password1!",
-                    "passwordConfirm": "password1!"
-                }
-                """;
-
             performPost(
                 mockMvc,
                 BASE_URL + "/signup",
-                requestBody,
-                status().isBadRequest(),
-                jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()),
-                jsonPath("$.title").value(HttpStatus.BAD_REQUEST.name())
+                REQUEST_BODY.formatted("tester", "password1!", "password1!"),
+                status().isConflict(),
+                jsonPath("$.status").value(HttpStatus.CONFLICT.value()),
+                jsonPath("$.title").value(HttpStatus.CONFLICT.name())
             );
         }
 
         @Test
         @DisplayName("비밀번호와 비밀번호 확인 불일치로 회원가입 실패")
         void given_PasswordMismatch_when_Signup_then_ReturnBadRequest() {
-            String requestBody = """
-                {
-                    "username": "newtester",
-                    "password": "password1!",
-                    "passwordConfirm": "different1!"
-                }
-                """;
-
             performPost(
                 mockMvc,
                 BASE_URL + "/signup",
-                requestBody,
+                REQUEST_BODY.formatted("newtester", "password1!", "different1!"),
                 status().isBadRequest(),
                 jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()),
                 jsonPath("$.title").value(HttpStatus.BAD_REQUEST.name())
@@ -278,22 +262,22 @@ class UserControllerTest {
     @DisplayName("비밀번호 변경 API")
     class ChangePassword {
 
+        private static final String REQUEST_BODY = """
+            {
+                "currentPassword": "%s",
+                "newPassword": "%s",
+                "confirmNewPassword": "%s"
+            }
+            """;
+
         @Test
         @DisplayName("비밀번호 변경 성공")
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_ValidPasswordChangeRequest_when_ChangePassword_then_ReturnNoContent() {
-            String requestBody = """
-                {
-                    "currentPassword": "password1!",
-                    "newPassword": "newpassword1!",
-                    "confirmNewPassword": "newpassword1!"
-                }
-                """;
-
             performPut(
                 mockMvc,
                 BASE_URL + "/me/password",
-                requestBody,
+                REQUEST_BODY.formatted("password1!", "newpassword1!", "newpassword1!"),
                 status().isNoContent()
             );
         }
@@ -302,18 +286,10 @@ class UserControllerTest {
         @DisplayName("잘못된 현재 비밀번호로 변경 실패")
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_InvalidCurrentPassword_when_ChangePassword_then_ReturnBadRequest() {
-            String requestBody = """
-                {
-                    "currentPassword": "wrongpassword",
-                    "newPassword": "newpassword123",
-                    "confirmNewPassword": "newpassword123"
-                }
-                """;
-
             performPut(
                 mockMvc,
                 BASE_URL + "/me/password",
-                requestBody,
+                REQUEST_BODY.formatted("wrongpassword", "newpassword1!", "newpassword1!"),
                 status().isBadRequest(),
                 jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()),
                 jsonPath("$.title").value(HttpStatus.BAD_REQUEST.name())
@@ -325,18 +301,10 @@ class UserControllerTest {
         @DisplayName("현재 비밀번호와 새 비밀번호가 같을 때 변경 실패")
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_SameNewPassword_when_ChangePassword_then_ReturnBadRequest() {
-            String requestBody = """
-                {
-                    "currentPassword": "password1!",
-                    "newPassword": "password1!",
-                    "confirmNewPassword": "password1!"
-                }
-                """;
-
             performPut(
                 mockMvc,
                 BASE_URL + "/me/password",
-                requestBody,
+                REQUEST_BODY.formatted("password1!", "password1!", "password1!"),
                 status().isBadRequest(),
                 jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()),
                 jsonPath("$.title").value(HttpStatus.BAD_REQUEST.name())
@@ -347,18 +315,10 @@ class UserControllerTest {
         @DisplayName("새 비밀번호와 새 비밀번호 확인 불일치로 변경 실패")
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_NewPasswordMismatch_when_ChangePassword_then_ReturnBadRequest() {
-            String requestBody = """
-                {
-                    "currentPassword": "password1!",
-                    "newPassword": "newpassword1!",
-                    "confirmNewPassword": "different1!"
-                }
-                """;
-
             performPut(
                 mockMvc,
                 BASE_URL + "/me/password",
-                requestBody,
+                REQUEST_BODY.formatted("password1!", "newpassword1!", "different1!"),
                 status().isBadRequest(),
                 jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()),
                 jsonPath("$.title").value(HttpStatus.BAD_REQUEST.name())
@@ -368,18 +328,10 @@ class UserControllerTest {
         @Test
         @DisplayName("인증되지 않은 사용자의 비밀번호 변경 실패")
         void given_UnauthenticatedUser_when_ChangePassword_then_ReturnUnauthorized() {
-            String requestBody = """
-                {
-                    "currentPassword": "password1!",
-                    "newPassword": "newpassword1!",
-                    "confirmNewPassword": "newpassword1!"
-                }
-                """;
-
             performPut(
                 mockMvc,
                 BASE_URL + "/me/password",
-                requestBody,
+                REQUEST_BODY.formatted("password1!", "newpassword1!", "newpassword1!"),
                 status().isUnauthorized(),
                 jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.value()),
                 jsonPath("$.title").value(HttpStatus.UNAUTHORIZED.name())
