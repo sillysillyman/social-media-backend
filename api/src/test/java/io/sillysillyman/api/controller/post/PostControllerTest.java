@@ -76,12 +76,12 @@ class PostControllerTest {
     @AfterEach
     void tearDown() {
         withTransaction(em -> {
-            em.createQuery("DELETE FROM PostEntity").executeUpdate();
             em.createQuery("DELETE FROM UserEntity").executeUpdate();
+            em.createQuery("DELETE FROM PostEntity").executeUpdate();
 
-            em.createNativeQuery("ALTER TABLE posts ALTER COLUMN id RESTART WITH 1")
-                .executeUpdate();
             em.createNativeQuery("ALTER TABLE users ALTER COLUMN id RESTART WITH 1")
+                .executeUpdate();
+            em.createNativeQuery("ALTER TABLE posts ALTER COLUMN id RESTART WITH 1")
                 .executeUpdate();
         });
         em.close();

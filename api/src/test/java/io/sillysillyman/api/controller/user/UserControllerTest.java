@@ -79,8 +79,8 @@ class UserControllerTest {
     @AfterEach
     void tearDown() {
         withTransaction(em -> {
-            em.createQuery("DELETE FROM PostEntity").executeUpdate();
             em.createQuery("DELETE FROM UserEntity").executeUpdate();
+            em.createQuery("DELETE FROM PostEntity").executeUpdate();
 
             em.createNativeQuery("ALTER TABLE users ALTER COLUMN id RESTART WITH 1")
                 .executeUpdate();
