@@ -93,10 +93,7 @@ class PostControllerTest {
 
         @Test
         @DisplayName("게시물 생성 성공")
-        @WithUserDetails(
-            value = "tester",
-            setupBefore = TestExecutionEvent.TEST_EXECUTION
-        )
+        @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_ValidContent_when_CreatePost_ReturnCreatedResponse() {
             String requestBody = """
                 {
@@ -138,10 +135,7 @@ class PostControllerTest {
 
         @Test
         @DisplayName("빈 내용으로 게시물 생성 실패")
-        @WithUserDetails(
-            value = "tester",
-            setupBefore = TestExecutionEvent.TEST_EXECUTION
-        )
+        @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_EmptyContent_when_CreatePost_then_ReturnBadRequest() {
             String requestBody = """
                 {
@@ -167,12 +161,7 @@ class PostControllerTest {
         @BeforeEach
         void setUp() {
             withTransaction(em -> {
-                UserEntity user = em.createQuery(
-                        "SELECT u FROM UserEntity u WHERE u.username = :username",
-                        UserEntity.class
-                    )
-                    .setParameter("username", "tester")
-                    .getSingleResult();
+                UserEntity user = em.find(UserEntity.class, userId);
 
                 PostEntity post = PostEntity.builder()
                     .content("Test Content")
@@ -219,12 +208,7 @@ class PostControllerTest {
         @BeforeEach
         void setUp() {
             withTransaction(em -> {
-                UserEntity user = em.createQuery(
-                        "SELECT u FROM UserEntity u WHERE u.username = :username",
-                        UserEntity.class
-                    )
-                    .setParameter("username", "tester")
-                    .getSingleResult();
+                UserEntity user = em.find(UserEntity.class, userId);
 
                 UserEntity other = UserEntity.builder()
                     .username("other")
@@ -245,10 +229,7 @@ class PostControllerTest {
 
         @Test
         @DisplayName("게시물 수정 성공")
-        @WithUserDetails(
-            value = "tester",
-            setupBefore = TestExecutionEvent.TEST_EXECUTION
-        )
+        @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_ValidContent_when_UpdatePost_then_ReturnNoContent() {
             String requestBody = """
                 {
@@ -286,10 +267,7 @@ class PostControllerTest {
 
         @Test
         @DisplayName("존재하지 않는 게시물 수정 실패")
-        @WithUserDetails(
-            value = "tester",
-            setupBefore = TestExecutionEvent.TEST_EXECUTION
-        )
+        @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_NonExistentPostId_when_UpdatePost_then_ReturnNotFound() {
             String requestBody = """
                 {
@@ -309,10 +287,7 @@ class PostControllerTest {
 
         @Test
         @DisplayName("권한 없는 사용자의 게시글 수정 실패")
-        @WithUserDetails(
-            value = "other",
-            setupBefore = TestExecutionEvent.TEST_EXECUTION
-        )
+        @WithUserDetails(value = "other", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_UnauthorizedUser_when_UpdatePost_then_ReturnForbidden() {
             String requestBody = """
                 {
@@ -338,12 +313,7 @@ class PostControllerTest {
         @BeforeEach
         void setUp() {
             withTransaction(em -> {
-                UserEntity user = em.createQuery(
-                        "SELECT u FROM UserEntity u WHERE u.username = :username",
-                        UserEntity.class
-                    )
-                    .setParameter("username", "tester")
-                    .getSingleResult();
+                UserEntity user = em.find(UserEntity.class, userId);
 
                 UserEntity other = UserEntity.builder()
                     .username("other")
@@ -364,10 +334,7 @@ class PostControllerTest {
 
         @Test
         @DisplayName("게시물 삭제 성공")
-        @WithUserDetails(
-            value = "tester",
-            setupBefore = TestExecutionEvent.TEST_EXECUTION
-        )
+        @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_ValidPostId_when_DeletePost_then_ReturnNoContent() {
             performDelete(mockMvc, BASE_URL + '/' + postId, status().isNoContent());
             performGet(mockMvc, "/api/v1/posts/1", status().isNotFound());
@@ -387,10 +354,7 @@ class PostControllerTest {
 
         @Test
         @DisplayName("존재하지 않는 게시물 삭제 실패")
-        @WithUserDetails(
-            value = "tester",
-            setupBefore = TestExecutionEvent.TEST_EXECUTION
-        )
+        @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_NonExistentPostId_when_DeletePost_then_ReturnNotFound() {
             performDelete(
                 mockMvc,
@@ -403,10 +367,7 @@ class PostControllerTest {
 
         @Test
         @DisplayName("권한 없는 사용자의 게시글 삭제 실패")
-        @WithUserDetails(
-            value = "other",
-            setupBefore = TestExecutionEvent.TEST_EXECUTION
-        )
+        @WithUserDetails(value = "other", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_UnauthorizedUser_when_DeletePost_then_ReturnForbidden() {
             performDelete(
                 mockMvc,
