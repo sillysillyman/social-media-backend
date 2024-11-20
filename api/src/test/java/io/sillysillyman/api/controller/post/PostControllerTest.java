@@ -76,12 +76,12 @@ class PostControllerTest {
     @AfterEach
     void tearDown() {
         withTransaction(em -> {
-            em.createQuery("DELETE FROM UserEntity").executeUpdate();
             em.createQuery("DELETE FROM PostEntity").executeUpdate();
+            em.createQuery("DELETE FROM UserEntity").executeUpdate();
 
-            em.createNativeQuery("ALTER TABLE users ALTER COLUMN id RESTART WITH 1")
-                .executeUpdate();
             em.createNativeQuery("ALTER TABLE posts ALTER COLUMN id RESTART WITH 1")
+                .executeUpdate();
+            em.createNativeQuery("ALTER TABLE users ALTER COLUMN id RESTART WITH 1")
                 .executeUpdate();
         });
         em.close();
@@ -91,20 +91,20 @@ class PostControllerTest {
     @DisplayName("게시물 생성 API")
     class CreatePost {
 
+        private static final String REQUEST_BODY = """
+            {
+                "content": "%s"
+            }
+            """;
+
         @Test
         @DisplayName("게시물 생성 성공")
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_ValidContent_when_CreatePost_ReturnCreatedResponse() {
-            String requestBody = """
-                {
-                    "content": "Test Content"
-                }
-                """;
-
             performPost(
                 mockMvc,
                 BASE_URL,
-                requestBody,
+                REQUEST_BODY.formatted("Test Content"),
                 status().isCreated(),
                 jsonPath("$.data.postId").value(postId),
                 jsonPath("$.data.content").value("Test Content"),
@@ -117,16 +117,10 @@ class PostControllerTest {
         @Test
         @DisplayName("인증되지 않은 사용자의 게시물 생성 실패")
         void given_UnauthenticatedUser_when_CreatePost_then_ReturnUnauthorized() {
-            String requestBody = """
-                {
-                    "content": "Test Content"
-                }
-                """;
-
             performPost(
                 mockMvc,
                 BASE_URL,
-                requestBody,
+                REQUEST_BODY.formatted("Test Content"),
                 status().isUnauthorized(),
                 jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.value()),
                 jsonPath("$.title").value(HttpStatus.UNAUTHORIZED.name())
@@ -137,16 +131,10 @@ class PostControllerTest {
         @DisplayName("빈 내용으로 게시물 생성 실패")
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_EmptyContent_when_CreatePost_then_ReturnBadRequest() {
-            String requestBody = """
-                {
-                    "content": ""
-                }
-                """;
-
             performPost(
                 mockMvc,
                 BASE_URL,
-                requestBody,
+                REQUEST_BODY.formatted(""),
                 status().isBadRequest(),
                 jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()),
                 jsonPath("$.title").value(HttpStatus.BAD_REQUEST.name())
@@ -205,6 +193,12 @@ class PostControllerTest {
     @DisplayName("게시물 수정 API")
     class UpdatePost {
 
+        private static final String REQUEST_BODY = """
+            {
+                "content": "Updated Content"
+            }
+            """;
+
         @BeforeEach
         void setUp() {
             withTransaction(em -> {
@@ -231,13 +225,7 @@ class PostControllerTest {
         @DisplayName("게시물 수정 성공")
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_ValidContent_when_UpdatePost_then_ReturnNoContent() {
-            String requestBody = """
-                {
-                    "content": "Updated Content"
-                }
-                """;
-
-            performPut(mockMvc, BASE_URL + '/' + postId, requestBody, status().isNoContent());
+            performPut(mockMvc, BASE_URL + '/' + postId, REQUEST_BODY, status().isNoContent());
             performGet(
                 mockMvc,
                 BASE_URL + '/' + postId,
@@ -249,16 +237,10 @@ class PostControllerTest {
         @Test
         @DisplayName("인증되지 않은 사용자의 게시물 수정 실패")
         void given_UnauthenticatedUser_when_UpdatePost_then_ReturnUnauthorized() {
-            String requestBody = """
-                {
-                    "content": "Updated Content"
-                }
-                """;
-
             performPut(
                 mockMvc,
                 BASE_URL + '/' + postId,
-                requestBody,
+                REQUEST_BODY,
                 status().isUnauthorized(),
                 jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.value()),
                 jsonPath("$.title").value(HttpStatus.UNAUTHORIZED.name())
@@ -269,16 +251,10 @@ class PostControllerTest {
         @DisplayName("존재하지 않는 게시물 수정 실패")
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_NonExistentPostId_when_UpdatePost_then_ReturnNotFound() {
-            String requestBody = """
-                {
-                    "content": "Updated Content"
-                }
-                """;
-
             performPut(
                 mockMvc,
                 BASE_URL + '/' + NON_EXISTENT_ID,
-                requestBody,
+                REQUEST_BODY,
                 status().isNotFound(),
                 jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()),
                 jsonPath("$.title").value(HttpStatus.NOT_FOUND.name())
@@ -289,16 +265,10 @@ class PostControllerTest {
         @DisplayName("권한 없는 사용자의 게시글 수정 실패")
         @WithUserDetails(value = "other", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_UnauthorizedUser_when_UpdatePost_then_ReturnForbidden() {
-            String requestBody = """
-                {
-                    "content": "Updated Content"
-                }
-                """;
-
             performPut(
                 mockMvc,
                 BASE_URL + '/' + postId,
-                requestBody,
+                REQUEST_BODY,
                 status().isForbidden(),
                 jsonPath("$.status").value(HttpStatus.FORBIDDEN.value()),
                 jsonPath("$.title").value(HttpStatus.FORBIDDEN.name())
