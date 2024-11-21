@@ -25,3 +25,9 @@ redis:
   refresh-token:
     prefix: "RT:"
     expiration: 1209600000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
