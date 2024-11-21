@@ -110,7 +110,7 @@ public class CommentServiceTest {
 
         @Test
         @DisplayName("유효한 요청으로 댓글 생성")
-        void createsCommentWithValidRequest() {
+        void given_ValidCommentRequest_when_CreateComment_then_CommentSavedSuccessfully() {
             // given
             CreateCommentCommand command = () -> NEW_COMMENT_CONTENT;
 
@@ -149,7 +149,7 @@ public class CommentServiceTest {
 
         @Test
         @DisplayName("게시글의 댓글 목록을 페이지네이션과 함께 조회")
-        void getsCommentsWithPagination() {
+        void given_PostWithComments_when_GetComments_then_ReturnPaginatedComments() {
             // given
             Pageable pageable = PageRequest.of(0, DEFAULT_PAGE_SIZE);
             List<CommentEntity> commentEntities = List.of(
@@ -176,7 +176,7 @@ public class CommentServiceTest {
 
         @Test
         @DisplayName("댓글이 없는 게시글의 댓글 목록 조회")
-        void getsEmptyCommentsWhenNoComments() {
+        void given_PostWithNoComments_when_GetComments_then_ReturnEmptyPage() {
             // given
             Pageable pageable = PageRequest.of(0, DEFAULT_PAGE_SIZE);
             Page<CommentEntity> emptyCommentEntityPage = new PageImpl<>(
@@ -203,7 +203,7 @@ public class CommentServiceTest {
 
         @Test
         @DisplayName("두 번째 페이지의 댓글 목록 조회")
-        void getsSecondPageOfComments() {
+        void given_MultipleComments_when_GetSecondPage_then_ReturnCorrectPageOfComments() {
             // given
             Pageable pageable = PageRequest.of(1, 5);
             List<CommentEntity> commentEntities = List.of(
@@ -292,7 +292,7 @@ public class CommentServiceTest {
 
         @Test
         @DisplayName("정상적인 댓글 수정")
-        void updatesCommentSuccessfully() {
+        void given_ValidUpdateRequest_when_UpdateComment_then_CommentUpdatedSuccessfully() {
             // given
             UpdateCommentCommand command = () -> UPDATED_CONTENT;
             CommentEntity updatedCommentEntity = CommentEntity.builder()
@@ -319,7 +319,7 @@ public class CommentServiceTest {
 
         @Test
         @DisplayName("존재하지 않는 댓글 수정 시도")
-        void throwsExceptionWhenCommentNotFound() {
+        void given_NonExistentComment_when_UpdateComment_then_ThrowCommentNotFoundException() {
             // given
             UpdateCommentCommand command = () -> UPDATED_CONTENT;
 
@@ -339,7 +339,7 @@ public class CommentServiceTest {
 
         @Test
         @DisplayName("권한이 없는 사용자의 댓글 수정 시도")
-        void throwsExceptionWhenUnauthorizedUser() {
+        void given_UnauthorizedUser_when_UpdateComment_then_ThrowForbiddenAccessException() {
             // given
             UpdateCommentCommand command = () -> UPDATED_CONTENT;
             User unauthorizedUser = createUnauthorizedUser();
@@ -366,7 +366,7 @@ public class CommentServiceTest {
 
         @Test
         @DisplayName("다른 게시글의 댓글 수정 시도")
-        void throwsExceptionWhenCommentNotBelongToPost() {
+        void given_CommentFromDifferentPost_when_UpdateComment_then_ThrowCommentNotBelongToPostException() {
             // given
             UpdateCommentCommand command = () -> UPDATED_CONTENT;
 
@@ -399,7 +399,7 @@ public class CommentServiceTest {
 
         @Test
         @DisplayName("정상적인 댓글 삭제")
-        void deletesCommentSuccessfully() {
+        void given_ValidComment_when_DeleteComment_then_CommentDeletedSuccessfully() {
             // given
             given(commentRepository.findById(commentEntity.getId()))
                 .willReturn(Optional.of(commentEntity));
@@ -413,7 +413,7 @@ public class CommentServiceTest {
 
         @Test
         @DisplayName("존재하지 않는 댓글 삭제 시도")
-        void throwsExceptionWhenCommentNotFound() {
+        void given_NonExistentComment_when_DeleteComment_then_ThrowCommentNotFoundException() {
             // given
             given(commentRepository.findById(NON_EXISTENT_ID)).willReturn(Optional.empty());
 
@@ -431,7 +431,7 @@ public class CommentServiceTest {
 
         @Test
         @DisplayName("권한이 없는 사용자의 댓글 삭제 시도")
-        void throwsExceptionWhenUnauthorizedUser() {
+        void given_UnauthorizedUser_when_DeleteComment_then_ThrowForbiddenAccessException() {
             // given
             User unauthorizedUser = createUnauthorizedUser();
             given(commentRepository.findById(commentEntity.getId()))
@@ -451,7 +451,7 @@ public class CommentServiceTest {
 
         @Test
         @DisplayName("다른 게시글의 댓글 삭제 시도")
-        void throwsExceptionWhenCommentNotBelongToPost() {
+        void given_CommentFromDifferentPost_when_DeleteComment_then_ThrowCommentNotBelongToPostException() {
             // given
             PostEntity anotherPostEntity = PostEntity.builder()
                 .content(TEST_CONTENT)

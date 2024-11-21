@@ -93,7 +93,7 @@ class PostServiceTest {
 
         @Test
         @DisplayName("존재하는 게시물 ID로 조회하면 게시물 반환")
-        void returnsPostWhenExists() {
+        void given_ExistingPostId_when_GetById_then_ReturnPost() {
             // given
             given(postRepository.findById(DEFAULT_ID)).willReturn(Optional.of(postEntity));
 
@@ -116,8 +116,8 @@ class PostServiceTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 게시물 ID로 조회하면 PostNotFoundException 발생")
-        void throwsExceptionWhenNotExists() {
+        @DisplayName("존재하지 않는 게시물 ID로 조회하면 예외 발생")
+        void given_NonExistentPostId_when_GetById_then_ThrowPostNotFoundException() {
             // given
             given(postRepository.findById(NON_EXISTENT_ID)).willReturn(Optional.empty());
 
@@ -138,7 +138,7 @@ class PostServiceTest {
 
         @Test
         @DisplayName("유효한 요청으로 게시물 생성")
-        void createsPostWithValidRequest() {
+        void given_ValidPostRequest_when_CreatePost_then_PostSavedSuccessfully() {
             // given
             CreatePostCommand command = () -> NEW_POST_CONTENT;
             PostEntity savedPostEntity = PostEntity.builder()
@@ -226,8 +226,8 @@ class PostServiceTest {
             private static final String SEVENTH_POST = "7th post";
 
             @Test
-            @DisplayName("사용자의 게시물 목록을 페이지네이션과 함께 조회")
-            void getsUserPostsWithPagination() {
+            @DisplayName("사용자 게시물 목록 페이지네이션 조회")
+            void given_PostsWithPagination_when_GetPosts_then_ReturnPaginatedPosts() {
                 // given
                 Pageable pageable = PageRequest.of(0, DEFAULT_PAGE_SIZE);
                 List<PostEntity> postEntities = List.of(
@@ -264,7 +264,7 @@ class PostServiceTest {
 
             @Test
             @DisplayName("게시물이 없는 사용자의 게시물 목록 조회")
-            void getsEmptyPageWhenNoPosts() {
+            void given_UserWithNoPosts_when_GetUserPosts_then_ReturnEmptyPage() {
                 // given
                 Pageable pageable = PageRequest.of(0, DEFAULT_PAGE_SIZE);
                 Page<PostEntity> emptyPostEntityPage = new PageImpl<>(
@@ -286,7 +286,7 @@ class PostServiceTest {
 
             @Test
             @DisplayName("두 번째 페이지의 게시물 목록 조회")
-            void getsSecondPageOfPosts() {
+            void given_MultiplePages_when_GetSecondPage_then_ReturnCorrectPageOfPosts() {
                 // given
                 Pageable pageable = PageRequest.of(1, 5);
                 List<PostEntity> postEntities = List.of(
@@ -339,7 +339,7 @@ class PostServiceTest {
 
             @Test
             @DisplayName("현재 사용자의 게시물 목록을 페이징하여 반환")
-            void returnsPagedMyPosts() {
+            void given_AuthenticatedUser_when_GetMyPosts_then_ReturnPaginatedPosts() {
                 // given
                 Pageable pageable = PageRequest.of(
                     0,
@@ -377,7 +377,7 @@ class PostServiceTest {
 
         @Test
         @DisplayName("게시물 작성자가 수정 성공")
-        void updatesPostWhenOwner() {
+        void given_ValidOwner_when_UpdatePost_then_UpdateSuccessfully() {
             // given
             UpdatePostCommand command = () -> UPDATED_CONTENT;
             PostEntity updatedPostEntity = PostEntity.builder()
@@ -404,7 +404,7 @@ class PostServiceTest {
 
         @Test
         @DisplayName("존재하지 않는 게시물 수정 시도")
-        void throwsExceptionWhenPostNotFound() {
+        void given_NonExistentPostId_when_UpdatePost_then_ThrowPostNotFoundException() {
             // given
 
             UpdatePostCommand command = () -> UPDATED_CONTENT;
@@ -424,7 +424,7 @@ class PostServiceTest {
 
         @Test
         @DisplayName("권한이 없는 사용자의 게시물 수정 시도")
-        void throwsExceptionWhenUnauthorizedUser() {
+        void given_UnauthorizedUser_when_UpdatePost_then_ThrowForbiddenAccessException() {
             // given
             UpdatePostCommand command = () -> UPDATED_CONTENT;
             User unauthorizedUser = createUnauthorizedUser();
@@ -455,7 +455,7 @@ class PostServiceTest {
 
         @Test
         @DisplayName("정상적인 게시물 삭제")
-        void deletesCommentSuccessfully() {
+        void given_ValidPost_when_DeletePost_then_DeleteSuccessfully() {
             // given
             given(postRepository.findById(postEntity.getId()))
                 .willReturn(Optional.of(postEntity));
@@ -469,7 +469,7 @@ class PostServiceTest {
 
         @Test
         @DisplayName("존재하지 않는 게시물 삭제 시도")
-        void throwsExceptionWhenCommentNotFound() {
+        void given_NonExistentPostId_when_DeletePost_then_ThrowPostNotFoundException() {
             // given
             given(postRepository.findById(NON_EXISTENT_ID)).willReturn(Optional.empty());
 
@@ -486,7 +486,7 @@ class PostServiceTest {
 
         @Test
         @DisplayName("권한이 없는 사용자의 게시물 삭제 시도")
-        void throwsExceptionWhenUnauthorizedUser() {
+        void given_UnauthorizedUser_when_DeletePost_then_ThrowForbiddenAccessException() {
             // given
             User unauthorizedUser = createUnauthorizedUser();
 

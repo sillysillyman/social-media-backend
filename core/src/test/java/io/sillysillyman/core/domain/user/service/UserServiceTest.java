@@ -68,7 +68,7 @@ public class UserServiceTest {
 
         @Test
         @DisplayName("존재하는 사용자 ID로 조회하면 사용자 반환")
-        void returnsUserWhenExists() {
+        void given_ExistingUserId_when_GetById_then_ReturnUser() {
             // given
             given(userRepository.findById(DEFAULT_ID)).willReturn(Optional.of(userEntity));
 
@@ -89,7 +89,7 @@ public class UserServiceTest {
 
         @Test
         @DisplayName("존재하지 않는 사용자 ID로 조회하면 예외 발생")
-        void throwsExceptionWhenNotExists() {
+        void given_NonExistentUserId_when_GetById_then_ThrowUserNotFoundException() {
             // given
             given(userRepository.findById(DEFAULT_ID)).willReturn(Optional.empty());
 
@@ -113,7 +113,7 @@ public class UserServiceTest {
 
         @Test
         @DisplayName("고유한 사용자명으로 가입 시도하면 가입 성공")
-        void signupSuccessWithUniqueUsername() {
+        void given_UniqueUsername_when_Signup_then_ReturnSavedUser() {
             // given
             SignupCommand command = new SignupCommand() {
                 @Override
@@ -154,7 +154,7 @@ public class UserServiceTest {
 
         @Test
         @DisplayName("중복된 사용자명으로 가입 시도하면 예외 발생")
-        void throwsExceptionWhenUsernameExists() {
+        void given_DuplicateUsername_when_Signup_then_ThrowDuplicateUsernameException() {
             // given
             SignupCommand command = new SignupCommand() {
                 @Override
@@ -198,7 +198,7 @@ public class UserServiceTest {
 
         @Test
         @DisplayName("올바른 현재 비밀번호로 변경 시도하면 변경 성공")
-        void changesPasswordSuccessfully() {
+        void given_ValidCurrentPassword_when_ChangePassword_then_UpdateSuccessfully() {
             // given
             ChangePasswordCommand command = new ChangePasswordCommand() {
                 @Override
@@ -234,7 +234,7 @@ public class UserServiceTest {
 
         @Test
         @DisplayName("잘못된 현재 비밀번호로 변경 시도하면 예외 발생")
-        void throwsExceptionWithIncorrectCurrentPassword() {
+        void given_IncorrectCurrentPassword_when_ChangePassword_then_ThrowPasswordMismatchException() {
             // given
             String incorrectPassword = "incorrectPassword";
             ChangePasswordCommand command = new ChangePasswordCommand() {
@@ -271,7 +271,7 @@ public class UserServiceTest {
 
         @Test
         @DisplayName("현재 비밀번호와 같은 새 비밀번호로 변경 시도하면 예외 발생")
-        void throwsExceptionWithSameNewPassword() {
+        void given_SameNewPassword_when_ChangePassword_then_ThrowSamePasswordException() {
             // given
             ChangePasswordCommand command = new ChangePasswordCommand() {
                 @Override
