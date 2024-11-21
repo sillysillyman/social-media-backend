@@ -307,7 +307,7 @@ class PostControllerTest {
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_ValidPostId_when_DeletePost_then_ReturnNoContent() {
             performDelete(mockMvc, BASE_URL + '/' + postId, status().isNoContent());
-            performGet(mockMvc, "/api/v1/posts/1", status().isNotFound());
+            performGet(mockMvc, BASE_URL + '/' + postId, status().isNotFound());
         }
 
         @Test
