@@ -143,7 +143,7 @@ class PostControllerTest {
     }
 
     @Nested
-    @DisplayName("게시글 조회 API")
+    @DisplayName("게시물 조회 API")
     class GetPost {
 
         @BeforeEach
@@ -262,7 +262,7 @@ class PostControllerTest {
         }
 
         @Test
-        @DisplayName("권한 없는 사용자의 게시글 수정 실패")
+        @DisplayName("권한 없는 사용자의 게시물 수정 실패")
         @WithUserDetails(value = "other", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_UnauthorizedUser_when_UpdatePost_then_ReturnForbidden() {
             performPut(
@@ -336,7 +336,7 @@ class PostControllerTest {
         }
 
         @Test
-        @DisplayName("권한 없는 사용자의 게시글 삭제 실패")
+        @DisplayName("권한 없는 사용자의 게시물 삭제 실패")
         @WithUserDetails(value = "other", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_UnauthorizedUser_when_DeletePost_then_ReturnForbidden() {
             performDelete(
