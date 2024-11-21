@@ -104,10 +104,10 @@ class PostControllerTest {
             performPost(
                 mockMvc,
                 BASE_URL,
-                REQUEST_BODY.formatted("Test Content"),
+                REQUEST_BODY.formatted("post content"),
                 status().isCreated(),
                 jsonPath("$.data.postId").value(postId),
-                jsonPath("$.data.content").value("Test Content"),
+                jsonPath("$.data.content").value("post content"),
                 jsonPath("$.data.userResponse").exists(),
                 jsonPath("$.data.userResponse.userId").value(userId),
                 jsonPath("$.data.userResponse.username").value("tester")
@@ -120,7 +120,7 @@ class PostControllerTest {
             performPost(
                 mockMvc,
                 BASE_URL,
-                REQUEST_BODY.formatted("Test Content"),
+                REQUEST_BODY.formatted("post content"),
                 status().isUnauthorized(),
                 jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.value()),
                 jsonPath("$.title").value(HttpStatus.UNAUTHORIZED.name())
@@ -152,7 +152,7 @@ class PostControllerTest {
                 UserEntity user = em.find(UserEntity.class, userId);
 
                 PostEntity post = PostEntity.builder()
-                    .content("Test Content")
+                    .content("post content")
                     .user(user)
                     .build();
                 em.persist(post);
@@ -170,7 +170,7 @@ class PostControllerTest {
                 BASE_URL + '/' + postId,
                 status().isOk(),
                 jsonPath("$.data.postId").value(postId),
-                jsonPath("$.data.content").value("Test Content"),
+                jsonPath("$.data.content").value("post content"),
                 jsonPath("$.data.userResponse.userId").value(userId),
                 jsonPath("$.data.userResponse.username").value("tester")
             );
@@ -195,7 +195,7 @@ class PostControllerTest {
 
         private static final String REQUEST_BODY = """
             {
-                "content": "Updated Content"
+                "content": "updated post content"
             }
             """;
 
@@ -212,7 +212,7 @@ class PostControllerTest {
                 em.persist(other);
 
                 PostEntity post = PostEntity.builder()
-                    .content("Original Content")
+                    .content("original post content")
                     .user(user)
                     .build();
                 em.persist(post);
@@ -230,7 +230,7 @@ class PostControllerTest {
                 mockMvc,
                 BASE_URL + '/' + postId,
                 status().isOk(),
-                jsonPath("$.data.content").value("Updated Content")
+                jsonPath("$.data.content").value("updated post content")
             );
         }
 
@@ -293,7 +293,7 @@ class PostControllerTest {
                 em.persist(other);
 
                 PostEntity post = PostEntity.builder()
-                    .content("Test Content")
+                    .content("post content")
                     .user(user)
                     .build();
                 em.persist(post);
