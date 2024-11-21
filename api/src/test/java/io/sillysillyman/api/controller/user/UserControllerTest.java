@@ -181,11 +181,11 @@ class UserControllerTest {
                 UserEntity user = em.find(UserEntity.class, userId);
 
                 PostEntity post1 = PostEntity.builder()
-                    .content("First Post")
+                    .content("first post")
                     .user(user)
                     .build();
                 PostEntity post2 = PostEntity.builder()
-                    .content("Second Post")
+                    .content("second post")
                     .user(user)
                     .build();
 
@@ -202,8 +202,8 @@ class UserControllerTest {
                 BASE_URL + "/" + userId + "/posts",
                 status().isOk(),
                 jsonPath("$.content").isArray(),
-                jsonPath("$.content[0].content").value("Second Post"),
-                jsonPath("$.content[1].content").value("First Post")
+                jsonPath("$.content[0].content").value("second post"),
+                jsonPath("$.content[1].content").value("first post")
             );
         }
     }
@@ -218,11 +218,11 @@ class UserControllerTest {
                 UserEntity user = em.find(UserEntity.class, userId);
 
                 PostEntity post1 = PostEntity.builder()
-                    .content("My First Post")
+                    .content("my first post")
                     .user(user)
                     .build();
                 PostEntity post2 = PostEntity.builder()
-                    .content("My Second Post")
+                    .content("my second post")
                     .user(user)
                     .build();
 
@@ -240,8 +240,8 @@ class UserControllerTest {
                 BASE_URL + "/me/posts",
                 status().isOk(),
                 jsonPath("$.content").isArray(),
-                jsonPath("$.content[0].content").value("My Second Post"),
-                jsonPath("$.content[1].content").value("My First Post")
+                jsonPath("$.content[0].content").value("my second post"),
+                jsonPath("$.content[1].content").value("mt first post")
             );
         }
 
