@@ -58,15 +58,21 @@ public class AuthService {
     }
 
     public void logout() {
-        UserDetails userDetails =
-            (CustomUserDetails) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-        String username = userDetails.getUsername();
-        refreshTokenRepository.deleteByUsername(username);
+        Object principal = SecurityContextHolder
+            .getContext()
+            .getAuthentication()
+            .getPrincipal();
+
+        if (principal instanceof CustomUserDetails userDetails) {
+            String username = userDetails.getUsername();
+            refreshTokenRepository.deleteByUsername(username);
+            log.info("User logged out successfully: {}", username);
+        } else {
+            log.warn("Unauthenticated user attempted to log out.");
+            throw new AuthenticationFailedException(AuthErrorCode.UNAUTHENTICATED_USER);
+        }
+
         SecurityContextHolder.clearContext();
-        log.info("User logged out successfully: {}", username);
     }
 
     public Token refresh(String refreshToken) {

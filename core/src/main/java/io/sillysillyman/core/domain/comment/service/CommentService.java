@@ -1,7 +1,7 @@
 package io.sillysillyman.core.domain.comment.service;
 
 import io.sillysillyman.core.auth.exception.AuthErrorCode;
-import io.sillysillyman.core.auth.exception.detail.UnauthorizedAccessException;
+import io.sillysillyman.core.auth.exception.detail.ForbiddenAccessException;
 import io.sillysillyman.core.domain.comment.Comment;
 import io.sillysillyman.core.domain.comment.CommentEntity;
 import io.sillysillyman.core.domain.comment.command.CreateCommentCommand;
@@ -56,6 +56,7 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public Page<Comment> getComments(Long postId, Pageable pageable) {
+        postService.getById(postId);
         return commentRepository.findByPostId(postId, pageable).map(Comment::from);
     }
 
@@ -88,7 +89,7 @@ public class CommentService {
 
     private void validateCommentOwnership(Long userId, Long authorId) {
         if (!Objects.equals(authorId, userId)) {
-            throw new UnauthorizedAccessException(AuthErrorCode.UNAUTHORIZED_ACCESS);
+            throw new ForbiddenAccessException(AuthErrorCode.FORBIDDEN_ACCESS);
         }
     }
 

@@ -1,6 +1,8 @@
 package io.sillysillyman.api.common;
 
 import io.sillysillyman.api.common.dto.ErrorResponse;
+import io.sillysillyman.core.auth.exception.AuthErrorCode;
+import io.sillysillyman.core.auth.exception.CustomAuthenticationException;
 import io.sillysillyman.core.domain.comment.exception.CommentErrorCode;
 import io.sillysillyman.core.domain.comment.exception.CommentException;
 import io.sillysillyman.core.domain.post.exception.PostErrorCode;
@@ -20,6 +22,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j(topic = "GlobalExceptionHandler")
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(CustomAuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthException(CustomAuthenticationException e) {
+        log.error("error: ", e);
+        AuthErrorCode authErrorCode = e.getAuthErrorCode();
+        return ResponseEntity.status(authErrorCode.getStatus()).body(
+            new ErrorResponse(
+                authErrorCode.getMessage(),
+                authErrorCode.getStatus().value(),
+                authErrorCode.getStatus().name()
+            )
+        );
+    }
 
     @ExceptionHandler(CommentException.class)
     public ResponseEntity<ErrorResponse> handleCommentException(CommentException e) {

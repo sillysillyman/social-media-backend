@@ -1,7 +1,7 @@
 package io.sillysillyman.core.domain.post.service;
 
 import io.sillysillyman.core.auth.exception.AuthErrorCode;
-import io.sillysillyman.core.auth.exception.detail.UnauthorizedAccessException;
+import io.sillysillyman.core.auth.exception.detail.ForbiddenAccessException;
 import io.sillysillyman.core.domain.post.Post;
 import io.sillysillyman.core.domain.post.PostEntity;
 import io.sillysillyman.core.domain.post.command.CreatePostCommand;
@@ -86,7 +86,7 @@ public class PostService {
 
     private void validatePostOwnership(Long userId, Long authorId) {
         if (!Objects.equals(userId, authorId)) {
-            throw new UnauthorizedAccessException(AuthErrorCode.UNAUTHORIZED_ACCESS);
+            throw new ForbiddenAccessException(AuthErrorCode.FORBIDDEN_ACCESS);
         }
     }
 }

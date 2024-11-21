@@ -1,0 +1,55 @@
+@host = http://localhost:8080
+@contentType = application/json
+
+### 회원가입
+POST {{host}}/api/v1/users/signup
+Content-Type: {{contentType}}
+
+{
+  "username": "testUser",
+  "password": "password123!",
+  "confirmPassword": "password123!"
+}
+
+> {%
+  client.global.set("userId", response.body["data"]["userId"]);
+%}
+
+### [사전작업] 로그인 및 토큰 저장
+POST {{host}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "testUser",
+  "password": "password123!"
+}
+
+> {%
+  client.global.set("accessToken", response.body["data"]["accessToken"]);
+  client.global.set("refreshToken", response.body["data"]["refreshToken"]);
+%}
+
+### 사용자 정보 조회
+GET {{host}}/api/v1/users/{{userId}}
+
+### 사용자의 게시글 목록 조회
+GET {{host}}/api/v1/users/{{userId}}/posts?page=0&size=10
+
+### 내 게시글 목록 조회
+GET {{host}}/api/v1/users/me/posts?page=0&size=10
+Authorization: Bearer {{accessToken}}
+
+### 비밀번호 변경
+PUT {{host}}/api/v1/users/me/password
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "currentPassword": "password123!",
+  "newPassword": "newpassword123@",
+  "confirmNewPassword": "newpassword123@"
+}
+
+### 회원 탈퇴
+DELETE {{host}}/api/v1/users/me
+Authorization: Bearer {{accessToken}}
