@@ -56,6 +56,7 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public Page<Comment> getComments(Long postId, Pageable pageable) {
+        postService.getById(postId);
         return commentRepository.findByPostId(postId, pageable).map(Comment::from);
     }
 
