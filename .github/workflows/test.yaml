@@ -1,0 +1,36 @@
+name: Gradle Test
+
+on:
+  pull_request:
+    types: [ opened, synchronize ]
+    paths:
+      - 'api/**'
+      - 'core/**'
+      - 'build.gradle'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Test with Gradle
+        run: ./gradlew test
+
+      - name: Upload test results
+        if: success() || failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: build/reports/tests/test/
