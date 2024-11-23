@@ -1,6 +1,7 @@
 package io.sillysillyman.core.domain.reply;
 
 import io.sillysillyman.core.domain.comment.Comment;
+import io.sillysillyman.core.domain.reply.command.UpsertReplyCommand;
 import io.sillysillyman.core.domain.user.User;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,5 +29,9 @@ public class Reply {
             .user(User.from(replyEntity.getUser()))
             .content(replyEntity.getContent())
             .build();
+    }
+
+    public void update(UpsertReplyCommand upsertReplyCommand) {
+        this.content = upsertReplyCommand.content();
     }
 }
