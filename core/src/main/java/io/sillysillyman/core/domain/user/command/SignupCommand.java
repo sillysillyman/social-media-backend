@@ -2,9 +2,9 @@ package io.sillysillyman.core.domain.user.command;
 
 public interface SignupCommand {
 
-    String getUsername();
+    String username();
 
-    String getPassword();
+    String password();
 
-    String getConfirmPassword();
+    String confirmPassword();
 }
