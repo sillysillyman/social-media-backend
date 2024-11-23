@@ -14,7 +14,7 @@ spring:
   redis:
     host: ${REDIS_HOST}
     port: ${REDIS_PORT}
-    password: ${REDIS_PASSWORD:}  # 비밀번호 설정된 경우
+    password: ${REDIS_PASSWORD:}
 
 jwt:
   secret: ${JWT_SECRET}
