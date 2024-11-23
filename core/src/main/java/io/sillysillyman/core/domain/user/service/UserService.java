@@ -35,15 +35,15 @@ public class UserService {
 
     @Transactional
     public User signup(SignupCommand signupCommand) {
-        validateUsernameUniqueness(signupCommand.getUsername());
+        validateUsernameUniqueness(signupCommand.username());
         validateConfirmPasswordMatches(
-            signupCommand.getPassword(),
-            signupCommand.getConfirmPassword()
+            signupCommand.password(),
+            signupCommand.confirmPassword()
         );
 
         User user = User.builder()
-            .username(signupCommand.getUsername())
-            .password(passwordEncoder.encode(signupCommand.getPassword()))
+            .username(signupCommand.username())
+            .password(passwordEncoder.encode(signupCommand.password()))
             .role(UserRole.USER)
             .build();
 
@@ -61,18 +61,18 @@ public class UserService {
     public void changePassword(ChangePasswordCommand changePasswordCommand, User user) {
         validateCurrentPasswordMatches(
             user.getPassword(),
-            changePasswordCommand.getCurrentPassword()
+            changePasswordCommand.currentPassword()
         );
         validateNewPasswordIsDifferent(
-            changePasswordCommand.getCurrentPassword(),
-            changePasswordCommand.getNewPassword()
+            changePasswordCommand.currentPassword(),
+            changePasswordCommand.newPassword()
         );
         validateConfirmPasswordMatches(
-            changePasswordCommand.getNewPassword(),
-            changePasswordCommand.getConfirmNewPassword()
+            changePasswordCommand.newPassword(),
+            changePasswordCommand.confirmNewPassword()
         );
 
-        user.changePassword(passwordEncoder.encode(changePasswordCommand.getNewPassword()));
+        user.changePassword(passwordEncoder.encode(changePasswordCommand.newPassword()));
 
         userRepository.save(UserEntity.from(user));
     }

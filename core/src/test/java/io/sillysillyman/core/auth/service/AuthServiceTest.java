@@ -88,14 +88,14 @@ class AuthServiceTest {
         @DisplayName("올바른 인증 정보로 로그인하면 토큰 반환")
         void given_ValidCredentials_when_Login_thenReturnToken() {
             // given
-            LoginCommand loginCommand = new LoginCommand() {
+            LoginCommand command = new LoginCommand() {
                 @Override
-                public String getUsername() {
+                public String username() {
                     return USERNAME;
                 }
 
                 @Override
-                public String getPassword() {
+                public String password() {
                     return PASSWORD;
                 }
             };
@@ -112,7 +112,7 @@ class AuthServiceTest {
                 .willReturn(REFRESH_TOKEN);
 
             // when
-            Token token = authService.login(loginCommand);
+            Token token = authService.login(command);
 
             // then
             assertThat(token.accessToken()).isEqualTo(ACCESS_TOKEN);
@@ -125,14 +125,14 @@ class AuthServiceTest {
         @DisplayName("잘못된 인증 정보로 로그인하면 예외 발생")
         void given_InvalidCredentials_when_Login_then_ThrowAuthenticationFailedException() {
             // given
-            LoginCommand loginCommand = new LoginCommand() {
+            LoginCommand command = new LoginCommand() {
                 @Override
-                public String getUsername() {
+                public String username() {
                     return USERNAME;
                 }
 
                 @Override
-                public String getPassword() {
+                public String password() {
                     return WRONG_PASSWORD;
                 }
             };
@@ -141,7 +141,7 @@ class AuthServiceTest {
                 .willThrow(new BadCredentialsException("Bad credentials"));
 
             // when
-            ThrowingCallable when = () -> authService.login(loginCommand);
+            ThrowingCallable when = () -> authService.login(command);
 
             // then
             assertThatThrownBy(when)

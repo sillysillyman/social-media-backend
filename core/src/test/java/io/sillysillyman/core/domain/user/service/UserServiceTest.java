@@ -33,7 +33,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
-    private static final String TEST_USERNAME = "testUser";
+    private static final String TEST_USERNAME = "tester";
     private static final String TEST_PASSWORD = "password1!";
     private static final String ENCODED_PASSWORD = "encodedPassword1!";
     private static final Long DEFAULT_ID = 1L;
@@ -117,17 +117,17 @@ public class UserServiceTest {
             // given
             SignupCommand command = new SignupCommand() {
                 @Override
-                public String getUsername() {
+                public String username() {
                     return TEST_USERNAME;
                 }
 
                 @Override
-                public String getPassword() {
+                public String password() {
                     return TEST_PASSWORD;
                 }
 
                 @Override
-                public String getConfirmPassword() {
+                public String confirmPassword() {
                     return TEST_PASSWORD;
                 }
             };
@@ -158,17 +158,17 @@ public class UserServiceTest {
             // given
             SignupCommand command = new SignupCommand() {
                 @Override
-                public String getUsername() {
+                public String username() {
                     return TEST_USERNAME;
                 }
 
                 @Override
-                public String getPassword() {
+                public String password() {
                     return TEST_PASSWORD;
                 }
 
                 @Override
-                public String getConfirmPassword() {
+                public String confirmPassword() {
                     return TEST_PASSWORD;
                 }
             };
@@ -202,17 +202,17 @@ public class UserServiceTest {
             // given
             ChangePasswordCommand command = new ChangePasswordCommand() {
                 @Override
-                public String getCurrentPassword() {
+                public String currentPassword() {
                     return TEST_PASSWORD;
                 }
 
                 @Override
-                public String getNewPassword() {
+                public String newPassword() {
                     return NEW_PASSWORD;
                 }
 
                 @Override
-                public String getConfirmNewPassword() {
+                public String confirmNewPassword() {
                     return NEW_PASSWORD;
                 }
             };
@@ -239,17 +239,17 @@ public class UserServiceTest {
             String incorrectPassword = "incorrectPassword";
             ChangePasswordCommand command = new ChangePasswordCommand() {
                 @Override
-                public String getCurrentPassword() {
+                public String currentPassword() {
                     return incorrectPassword;
                 }
 
                 @Override
-                public String getNewPassword() {
+                public String newPassword() {
                     return NEW_PASSWORD;
                 }
 
                 @Override
-                public String getConfirmNewPassword() {
+                public String confirmNewPassword() {
                     return NEW_PASSWORD;
                 }
             };
@@ -275,17 +275,17 @@ public class UserServiceTest {
             // given
             ChangePasswordCommand command = new ChangePasswordCommand() {
                 @Override
-                public String getCurrentPassword() {
+                public String currentPassword() {
                     return TEST_PASSWORD;
                 }
 
                 @Override
-                public String getNewPassword() {
+                public String newPassword() {
                     return TEST_PASSWORD;
                 }
 
                 @Override
-                public String getConfirmNewPassword() {
+                public String confirmNewPassword() {
                     return TEST_PASSWORD;
                 }
             };

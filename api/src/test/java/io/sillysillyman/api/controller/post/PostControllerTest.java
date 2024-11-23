@@ -128,13 +128,13 @@ class PostControllerTest {
         }
 
         @Test
-        @DisplayName("빈 내용으로 게시물 생성 실패")
+        @DisplayName("null 내용으로 게시물 생성 실패")
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-        void given_EmptyContent_when_CreatePost_then_ReturnBadRequest() {
+        void given_NullContent_when_CreatePost_then_ReturnBadRequest() {
             performPost(
                 mockMvc,
                 BASE_URL,
-                REQUEST_BODY.formatted(""),
+                "{}",
                 status().isBadRequest(),
                 jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()),
                 jsonPath("$.title").value(HttpStatus.BAD_REQUEST.name())

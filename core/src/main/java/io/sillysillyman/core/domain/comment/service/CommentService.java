@@ -44,7 +44,7 @@ public class CommentService {
     ) {
         Post post = postService.getById(postId);
         Comment comment = Comment.builder()
-            .content(createCommentCommand.getContent())
+            .content(createCommentCommand.content())
             .post(post)
             .user(user)
             .build();
