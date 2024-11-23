@@ -1,9 +1,11 @@
 package io.sillysillyman.api.controller.user.dto;
 
 import io.sillysillyman.core.domain.user.command.SignupCommand;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.Objects;
 
 public record SignupRequest(
     @NotBlank(message = "username must not be blank")
@@ -19,4 +21,8 @@ public record SignupRequest(
     String confirmPassword
 ) implements SignupCommand {
 
+    @AssertTrue(message = "confirm new password must match with new password")
+    private boolean isNewPasswordMatching() {
+        return !Objects.equals(password, confirmPassword);
+    }
 }

@@ -8,10 +8,8 @@ import io.sillysillyman.core.domain.user.command.SignupCommand;
 import io.sillysillyman.core.domain.user.exception.UserErrorCode;
 import io.sillysillyman.core.domain.user.exception.detail.DuplicateUsernameException;
 import io.sillysillyman.core.domain.user.exception.detail.PasswordMismatchException;
-import io.sillysillyman.core.domain.user.exception.detail.SamePasswordException;
 import io.sillysillyman.core.domain.user.exception.detail.UserNotFoundException;
 import io.sillysillyman.core.domain.user.repository.UserRepository;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,10 +34,6 @@ public class UserService {
     @Transactional
     public User signup(SignupCommand signupCommand) {
         validateUsernameUniqueness(signupCommand.username());
-        validateConfirmPasswordMatches(
-            signupCommand.password(),
-            signupCommand.confirmPassword()
-        );
 
         User user = User.builder()
             .username(signupCommand.username())
@@ -63,14 +57,6 @@ public class UserService {
             user.getPassword(),
             changePasswordCommand.currentPassword()
         );
-        validateNewPasswordIsDifferent(
-            changePasswordCommand.currentPassword(),
-            changePasswordCommand.newPassword()
-        );
-        validateConfirmPasswordMatches(
-            changePasswordCommand.newPassword(),
-            changePasswordCommand.confirmNewPassword()
-        );
 
         user.changePassword(passwordEncoder.encode(changePasswordCommand.newPassword()));
 
@@ -92,18 +78,6 @@ public class UserService {
 
     private void validateCurrentPasswordMatches(String currentPassword, String providedPassword) {
         if (!passwordEncoder.matches(providedPassword, currentPassword)) {
-            throw new PasswordMismatchException(UserErrorCode.PASSWORD_MISMATCH);
-        }
-    }
-
-    private void validateNewPasswordIsDifferent(String currentPassword, String newPassword) {
-        if (Objects.equals(currentPassword, newPassword)) {
-            throw new SamePasswordException(UserErrorCode.SAME_PASSWORD);
-        }
-    }
-
-    private void validateConfirmPasswordMatches(String password, String confirmPassword) {
-        if (!Objects.equals(password, confirmPassword)) {
             throw new PasswordMismatchException(UserErrorCode.PASSWORD_MISMATCH);
         }
     }
