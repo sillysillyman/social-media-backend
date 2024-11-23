@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 public enum UserErrorCode {
     DUPLICATE_USERNAME(HttpStatus.CONFLICT, "duplicate username"),
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "password mismatch"),
-    SAME_PASSWORD(HttpStatus.BAD_REQUEST, "same password"),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "user not found");
 
     private final HttpStatus status;
