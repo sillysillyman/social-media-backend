@@ -88,7 +88,7 @@ public class CommentService {
     }
 
     private void validateCommentOwnership(Long userId, Long authorId) {
-        if (!Objects.equals(authorId, userId)) {
+        if (!Objects.equals(userId, authorId)) {
             throw new ForbiddenAccessException(AuthErrorCode.FORBIDDEN_ACCESS);
         }
     }
