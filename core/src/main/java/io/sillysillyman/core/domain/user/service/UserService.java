@@ -8,10 +8,8 @@ import io.sillysillyman.core.domain.user.command.SignupCommand;
 import io.sillysillyman.core.domain.user.exception.UserErrorCode;
 import io.sillysillyman.core.domain.user.exception.detail.DuplicateUsernameException;
 import io.sillysillyman.core.domain.user.exception.detail.PasswordMismatchException;
-import io.sillysillyman.core.domain.user.exception.detail.SamePasswordException;
 import io.sillysillyman.core.domain.user.exception.detail.UserNotFoundException;
 import io.sillysillyman.core.domain.user.repository.UserRepository;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,15 +33,11 @@ public class UserService {
 
     @Transactional
     public User signup(SignupCommand signupCommand) {
-        validateUsernameUniqueness(signupCommand.getUsername());
-        validateConfirmPasswordMatches(
-            signupCommand.getPassword(),
-            signupCommand.getConfirmPassword()
-        );
+        validateUsernameUniqueness(signupCommand.username());
 
         User user = User.builder()
-            .username(signupCommand.getUsername())
-            .password(passwordEncoder.encode(signupCommand.getPassword()))
+            .username(signupCommand.username())
+            .password(passwordEncoder.encode(signupCommand.password()))
             .role(UserRole.USER)
             .build();
 
@@ -61,18 +55,10 @@ public class UserService {
     public void changePassword(ChangePasswordCommand changePasswordCommand, User user) {
         validateCurrentPasswordMatches(
             user.getPassword(),
-            changePasswordCommand.getCurrentPassword()
-        );
-        validateNewPasswordIsDifferent(
-            changePasswordCommand.getCurrentPassword(),
-            changePasswordCommand.getNewPassword()
-        );
-        validateConfirmPasswordMatches(
-            changePasswordCommand.getNewPassword(),
-            changePasswordCommand.getConfirmNewPassword()
+            changePasswordCommand.currentPassword()
         );
 
-        user.changePassword(passwordEncoder.encode(changePasswordCommand.getNewPassword()));
+        user.changePassword(passwordEncoder.encode(changePasswordCommand.newPassword()));
 
         userRepository.save(UserEntity.from(user));
     }
@@ -92,18 +78,6 @@ public class UserService {
 
     private void validateCurrentPasswordMatches(String currentPassword, String providedPassword) {
         if (!passwordEncoder.matches(providedPassword, currentPassword)) {
-            throw new PasswordMismatchException(UserErrorCode.PASSWORD_MISMATCH);
-        }
-    }
-
-    private void validateNewPasswordIsDifferent(String currentPassword, String newPassword) {
-        if (Objects.equals(currentPassword, newPassword)) {
-            throw new SamePasswordException(UserErrorCode.SAME_PASSWORD);
-        }
-    }
-
-    private void validateConfirmPasswordMatches(String password, String confirmPassword) {
-        if (!Objects.equals(password, confirmPassword)) {
             throw new PasswordMismatchException(UserErrorCode.PASSWORD_MISMATCH);
         }
     }

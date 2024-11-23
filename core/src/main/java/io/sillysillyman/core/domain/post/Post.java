@@ -28,8 +28,6 @@ public class Post {
     }
 
     public void update(UpdatePostCommand updatePostCommand) {
-        if (updatePostCommand.getContent() != null) {
-            this.content = updatePostCommand.getContent();
-        }
+        this.content = updatePostCommand.content();
     }
 }

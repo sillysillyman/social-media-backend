@@ -2,11 +2,10 @@ package io.sillysillyman.api.controller.comment.dto;
 
 import io.sillysillyman.core.domain.comment.command.UpdateCommentCommand;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
 
-@Getter
-public class UpdateCommentRequest implements UpdateCommentCommand {
-
+public record UpdateCommentRequest(
     @NotBlank(message = "content must not be blank")
-    private String content;
+    String content
+) implements UpdateCommentCommand {
+
 }

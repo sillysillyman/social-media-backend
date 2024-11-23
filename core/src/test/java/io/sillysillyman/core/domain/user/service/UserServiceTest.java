@@ -14,7 +14,6 @@ import io.sillysillyman.core.domain.user.command.SignupCommand;
 import io.sillysillyman.core.domain.user.exception.UserErrorCode;
 import io.sillysillyman.core.domain.user.exception.detail.DuplicateUsernameException;
 import io.sillysillyman.core.domain.user.exception.detail.PasswordMismatchException;
-import io.sillysillyman.core.domain.user.exception.detail.SamePasswordException;
 import io.sillysillyman.core.domain.user.exception.detail.UserNotFoundException;
 import io.sillysillyman.core.domain.user.repository.UserRepository;
 import java.util.Optional;
@@ -33,7 +32,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
-    private static final String TEST_USERNAME = "testUser";
+    private static final String TEST_USERNAME = "tester";
     private static final String TEST_PASSWORD = "password1!";
     private static final String ENCODED_PASSWORD = "encodedPassword1!";
     private static final Long DEFAULT_ID = 1L;
@@ -117,17 +116,17 @@ public class UserServiceTest {
             // given
             SignupCommand command = new SignupCommand() {
                 @Override
-                public String getUsername() {
+                public String username() {
                     return TEST_USERNAME;
                 }
 
                 @Override
-                public String getPassword() {
+                public String password() {
                     return TEST_PASSWORD;
                 }
 
                 @Override
-                public String getConfirmPassword() {
+                public String confirmPassword() {
                     return TEST_PASSWORD;
                 }
             };
@@ -158,17 +157,17 @@ public class UserServiceTest {
             // given
             SignupCommand command = new SignupCommand() {
                 @Override
-                public String getUsername() {
+                public String username() {
                     return TEST_USERNAME;
                 }
 
                 @Override
-                public String getPassword() {
+                public String password() {
                     return TEST_PASSWORD;
                 }
 
                 @Override
-                public String getConfirmPassword() {
+                public String confirmPassword() {
                     return TEST_PASSWORD;
                 }
             };
@@ -202,17 +201,17 @@ public class UserServiceTest {
             // given
             ChangePasswordCommand command = new ChangePasswordCommand() {
                 @Override
-                public String getCurrentPassword() {
+                public String currentPassword() {
                     return TEST_PASSWORD;
                 }
 
                 @Override
-                public String getNewPassword() {
+                public String newPassword() {
                     return NEW_PASSWORD;
                 }
 
                 @Override
-                public String getConfirmNewPassword() {
+                public String confirmNewPassword() {
                     return NEW_PASSWORD;
                 }
             };
@@ -239,17 +238,17 @@ public class UserServiceTest {
             String incorrectPassword = "incorrectPassword";
             ChangePasswordCommand command = new ChangePasswordCommand() {
                 @Override
-                public String getCurrentPassword() {
+                public String currentPassword() {
                     return incorrectPassword;
                 }
 
                 @Override
-                public String getNewPassword() {
+                public String newPassword() {
                     return NEW_PASSWORD;
                 }
 
                 @Override
-                public String getConfirmNewPassword() {
+                public String confirmNewPassword() {
                     return NEW_PASSWORD;
                 }
             };
@@ -265,42 +264,6 @@ public class UserServiceTest {
                 .hasMessage(UserErrorCode.PASSWORD_MISMATCH.getMessage());
 
             then(passwordEncoder).should().matches(incorrectPassword, user.getPassword());
-            then(passwordEncoder).shouldHaveNoMoreInteractions();
-            then(userRepository).shouldHaveNoInteractions();
-        }
-
-        @Test
-        @DisplayName("현재 비밀번호와 같은 새 비밀번호로 변경 시도하면 예외 발생")
-        void given_SameNewPassword_when_ChangePassword_then_ThrowSamePasswordException() {
-            // given
-            ChangePasswordCommand command = new ChangePasswordCommand() {
-                @Override
-                public String getCurrentPassword() {
-                    return TEST_PASSWORD;
-                }
-
-                @Override
-                public String getNewPassword() {
-                    return TEST_PASSWORD;
-                }
-
-                @Override
-                public String getConfirmNewPassword() {
-                    return TEST_PASSWORD;
-                }
-            };
-
-            given(passwordEncoder.matches(TEST_PASSWORD, user.getPassword())).willReturn(true);
-
-            // when
-            ThrowingCallable when = () -> userService.changePassword(command, user);
-
-            // then
-            assertThatThrownBy(when)
-                .isInstanceOf(SamePasswordException.class)
-                .hasMessage(UserErrorCode.SAME_PASSWORD.getMessage());
-
-            then(passwordEncoder).should().matches(TEST_PASSWORD, user.getPassword());
             then(passwordEncoder).shouldHaveNoMoreInteractions();
             then(userRepository).shouldHaveNoInteractions();
         }

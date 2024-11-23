@@ -32,6 +32,6 @@ public class Comment {
     }
 
     public void update(UpdateCommentCommand updateCommentCommand) {
-        this.content = updateCommentCommand.getContent();
+        this.content = updateCommentCommand.content();
     }
 }
