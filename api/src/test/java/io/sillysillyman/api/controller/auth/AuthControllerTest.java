@@ -182,6 +182,7 @@ class AuthControllerTest {
                     status().isOk()
                 );
 
+                // FIXME: JsonPath -> objectMapper
                 refreshToken = JsonPath.read(
                     result.getResponse().getContentAsString(),
                     "$.data.refreshToken"

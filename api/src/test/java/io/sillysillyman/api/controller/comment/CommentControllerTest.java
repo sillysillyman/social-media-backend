@@ -114,7 +114,7 @@ public class CommentControllerTest {
         @Test
         @DisplayName("댓글 생성 성공")
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-        void given_ValidContent_when_CreateComment_ReturnCreatedResponse() {
+        void given_ValidContent_when_CreateComment_ReturnCreatedResponse() { // FIXME: 메서드명 then 추가
             performPost(
                 mockMvc,
                 BASE_URL.formatted(postId),
