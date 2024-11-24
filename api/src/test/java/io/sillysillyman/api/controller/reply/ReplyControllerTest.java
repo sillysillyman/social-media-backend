@@ -45,7 +45,6 @@ public class ReplyControllerTest {
 
     private EntityManager em;
     private Long userId;
-    private Long postId;
     private Long commentId;
     private Long replyId = 1L;
 
@@ -91,7 +90,6 @@ public class ReplyControllerTest {
             em.persist(comment);
 
             userId = user.getId();
-            postId = post.getId();
             commentId = comment.getId();
         });
     }
