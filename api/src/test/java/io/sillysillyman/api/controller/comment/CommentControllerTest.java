@@ -28,8 +28,8 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
 @AutoConfigureMockMvc
+@SpringBootTest
 @ActiveProfiles("test")
 public class CommentControllerTest {
 
@@ -101,8 +101,8 @@ public class CommentControllerTest {
         em.close();
     }
 
-    @Nested
     @DisplayName("댓글 생성 API")
+    @Nested
     class CreateComment {
 
         private static final String REQUEST_BODY = """
@@ -111,10 +111,10 @@ public class CommentControllerTest {
             }
             """;
 
-        @Test
         @DisplayName("댓글 생성 성공")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-        void given_ValidContent_when_CreateComment_ReturnCreatedResponse() { // FIXME: 메서드명 then 추가
+        void given_ValidContent_when_CreateComment_then_ReturnCreatedResponse() {
             performPost(
                 mockMvc,
                 BASE_URL.formatted(postId),
@@ -131,8 +131,8 @@ public class CommentControllerTest {
             );
         }
 
-        @Test
         @DisplayName("인증되지 않은 사용자의 댓글 생성 실패")
+        @Test
         void given_UnauthenticatedUser_when_CreateComment_then_ReturnUnauthorized() {
             performPost(
                 mockMvc,
@@ -144,8 +144,8 @@ public class CommentControllerTest {
             );
         }
 
-        @Test
         @DisplayName("빈 내용으로 댓글 생성 실패")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_EmptyContent_when_CreateComment_then_ReturnBadRequest() {
             performPost(
@@ -159,8 +159,8 @@ public class CommentControllerTest {
         }
     }
 
-    @Nested
     @DisplayName("댓글 목록 조회 API")
+    @Nested
     class GetComments {
 
         @BeforeEach
@@ -188,8 +188,8 @@ public class CommentControllerTest {
             });
         }
 
-        @Test
         @DisplayName("댓글 목록 조회 성공")
+        @Test
         void given_ExistingPostId_when_GetComments_then_ReturnOkResponse() {
             performGet(
                 mockMvc,
@@ -204,8 +204,8 @@ public class CommentControllerTest {
             );
         }
 
-        @Test
         @DisplayName("존재하지 않는 게시물의 댓글 목록 조회 실패")
+        @Test
         void given_NonExistentPostId_when_GetComments_then_ReturnNotFound() {
             performGet(
                 mockMvc,
@@ -217,8 +217,8 @@ public class CommentControllerTest {
         }
     }
 
-    @Nested
     @DisplayName("댓글 수정 API")
+    @Nested
     class UpdateComment {
 
         private static final String REQUEST_BODY = """
@@ -252,8 +252,8 @@ public class CommentControllerTest {
             });
         }
 
-        @Test
         @DisplayName("댓글 수정 성공")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_ValidContent_when_UpdateComment_then_ReturnNoContent() {
             performPut(
@@ -271,8 +271,8 @@ public class CommentControllerTest {
             );
         }
 
-        @Test
         @DisplayName("인증되지 않은 사용자의 댓글 수정 실패")
+        @Test
         void given_UnauthenticatedUser_when_UpdateComment_then_ReturnUnauthorized() {
             performPut(
                 mockMvc,
@@ -284,8 +284,8 @@ public class CommentControllerTest {
             );
         }
 
-        @Test
         @DisplayName("존재하지 않는 댓글 수정 실패")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_NonExistentPostId_when_UpdateComment_then_ReturnNotFound() {
             performPut(
@@ -298,8 +298,8 @@ public class CommentControllerTest {
             );
         }
 
-        @Test
         @DisplayName("권한 없는 사용자의 댓글 수정 실패")
+        @Test
         @WithUserDetails(value = "other", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_UnauthorizedUser_when_UpdateComment_then_ReturnForbidden() {
             performPut(
@@ -313,8 +313,8 @@ public class CommentControllerTest {
         }
     }
 
-    @Nested
     @DisplayName("댓글 삭제 API")
+    @Nested
     class DeleteComment {
 
         @BeforeEach
@@ -342,8 +342,8 @@ public class CommentControllerTest {
             });
         }
 
-        @Test
         @DisplayName("댓글 삭제 성공")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_ValidPostId_when_DeleteComment_then_ReturnNoContent() {
             performDelete(
@@ -359,8 +359,8 @@ public class CommentControllerTest {
             );
         }
 
-        @Test
         @DisplayName("인증되지 않은 사용자의 댓글 삭제 실패")
+        @Test
         void given_UnauthenticatedUser_when_DeleteComment_then_ReturnUnauthorized() {
             performDelete(
                 mockMvc,
@@ -371,8 +371,8 @@ public class CommentControllerTest {
             );
         }
 
-        @Test
         @DisplayName("존재하지 않는 댓글 삭제 실패")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_NonExistentPostId_when_DeleteComment_then_ReturnNotFound() {
             performDelete(
@@ -384,8 +384,8 @@ public class CommentControllerTest {
             );
         }
 
-        @Test
         @DisplayName("권한 없는 사용자의 댓글 삭제 실패")
+        @Test
         @WithUserDetails(value = "other", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_UnauthorizedUser_when_DeleteComment_then_ReturnForbidden() {
             performDelete(
