@@ -7,6 +7,8 @@ import io.sillysillyman.core.domain.comment.exception.CommentErrorCode;
 import io.sillysillyman.core.domain.comment.exception.CommentException;
 import io.sillysillyman.core.domain.post.exception.PostErrorCode;
 import io.sillysillyman.core.domain.post.exception.PostException;
+import io.sillysillyman.core.domain.reply.exception.ReplyErrorCode;
+import io.sillysillyman.core.domain.reply.exception.ReplyException;
 import io.sillysillyman.core.domain.user.exception.UserErrorCode;
 import io.sillysillyman.core.domain.user.exception.UserException;
 import java.util.List;
@@ -58,6 +60,19 @@ public class GlobalExceptionHandler {
                 postErrorCode.getMessage(),
                 postErrorCode.getStatus().value(),
                 postErrorCode.getStatus().name()
+            )
+        );
+    }
+
+    @ExceptionHandler(ReplyException.class)
+    public ResponseEntity<ErrorResponse> handleReplyException(ReplyException e) {
+        log.error("error: ", e);
+        ReplyErrorCode replyErrorCode = e.getReplyErrorCode();
+        return ResponseEntity.status(replyErrorCode.getStatus()).body(
+            new ErrorResponse(
+                replyErrorCode.getMessage(),
+                replyErrorCode.getStatus().value(),
+                replyErrorCode.getStatus().name()
             )
         );
     }
