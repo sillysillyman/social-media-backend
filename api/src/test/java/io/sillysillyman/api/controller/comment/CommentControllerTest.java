@@ -228,7 +228,7 @@ public class CommentControllerTest {
 
         private static final String REQUEST_BODY = """
             {
-                "content": "%s"
+                "content": "updated comment content"
             }
             """;
 
@@ -264,7 +264,7 @@ public class CommentControllerTest {
             performPut(
                 mockMvc,
                 BASE_URL.formatted(postId) + '/' + commentId,
-                REQUEST_BODY.formatted("updated comment content"),
+                REQUEST_BODY,
                 status().isNoContent()
             );
             performGet(
@@ -282,7 +282,7 @@ public class CommentControllerTest {
             performPut(
                 mockMvc,
                 BASE_URL.formatted(postId) + '/' + commentId,
-                REQUEST_BODY.formatted("updated comment content"),
+                REQUEST_BODY,
                 status().isUnauthorized(),
                 jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.value()),
                 jsonPath("$.title").value(HttpStatus.UNAUTHORIZED.name())
@@ -296,7 +296,7 @@ public class CommentControllerTest {
             performPut(
                 mockMvc,
                 BASE_URL.formatted(postId) + '/' + NON_EXISTENT_ID,
-                REQUEST_BODY.formatted("updated comment content"),
+                REQUEST_BODY,
                 status().isNotFound(),
                 jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()),
                 jsonPath("$.title").value(HttpStatus.NOT_FOUND.name())
@@ -310,7 +310,7 @@ public class CommentControllerTest {
             performPut(
                 mockMvc,
                 BASE_URL.formatted(postId) + '/' + commentId,
-                REQUEST_BODY.formatted("updated comment content"),
+                REQUEST_BODY,
                 status().isForbidden(),
                 jsonPath("$.status").value(HttpStatus.FORBIDDEN.value()),
                 jsonPath("$.title").value(HttpStatus.FORBIDDEN.name())
