@@ -163,6 +163,9 @@ public class CommentControllerTest {
     @Nested
     class GetComments {
 
+        private Long comment1Id;
+        private Long comment2Id;
+
         @BeforeEach
         void setUp() {
             withTransaction(em -> {
@@ -185,6 +188,8 @@ public class CommentControllerTest {
 
                 userId = user.getId();
                 postId = post.getId();
+                comment1Id = comment1.getId();
+                comment2Id = comment2.getId();
             });
         }
 
@@ -196,10 +201,10 @@ public class CommentControllerTest {
                 BASE_URL.formatted(postId),
                 status().isOk(),
                 jsonPath("$.content[0]").exists(),
-                jsonPath("$.content[0].commentId").value(1L),
+                jsonPath("$.content[0].commentId").value(comment1Id),
                 jsonPath("$.content[0].content").value("first comment"),
                 jsonPath("$.content[1]").exists(),
-                jsonPath("$.content[1].commentId").value(2L),
+                jsonPath("$.content[1].commentId").value(comment2Id),
                 jsonPath("$.content[1].content").value("second comment")
             );
         }
