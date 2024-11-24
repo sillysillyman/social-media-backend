@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ReplyController {
 
-    private ReplyService replyService;
+    private final ReplyService replyService;
 
     @PostMapping
     public ResponseEntity<SingleItemResponse<ReplyResponse>> createReply(
