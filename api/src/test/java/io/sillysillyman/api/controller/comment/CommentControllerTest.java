@@ -229,7 +229,7 @@ public class CommentControllerTest {
         private static final String REQUEST_BODY = """
             {
                 "content": "%s"
-                }
+            }
             """;
 
         @BeforeEach
