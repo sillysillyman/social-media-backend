@@ -241,7 +241,7 @@ class UserControllerTest {
                 status().isOk(),
                 jsonPath("$.content").isArray(),
                 jsonPath("$.content[0].content").value("my second post"),
-                jsonPath("$.content[1].content").value("mt first post")
+                jsonPath("$.content[1].content").value("my first post")
             );
         }
 

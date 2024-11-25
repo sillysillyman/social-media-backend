@@ -37,8 +37,8 @@ public class AuthService {
         try {
             Authentication authentication = authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken.unauthenticated(
-                    loginCommand.getUsername(),
-                    loginCommand.getPassword()
+                    loginCommand.username(),
+                    loginCommand.password()
                 )
             );
 

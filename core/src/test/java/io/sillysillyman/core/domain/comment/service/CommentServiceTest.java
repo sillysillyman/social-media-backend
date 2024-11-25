@@ -42,7 +42,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 public class CommentServiceTest {
 
-    private static final String TEST_USERNAME = "testUser";
+    private static final String TEST_USERNAME = "tester";
     private static final String TEST_CONTENT = "Test content";
     private static final Long DEFAULT_ID = 1L;
     private static final Long ANOTHER_ID = 2L;
@@ -115,7 +115,7 @@ public class CommentServiceTest {
             CreateCommentCommand command = () -> NEW_COMMENT_CONTENT;
 
             CommentEntity savedCommentEntity = CommentEntity.builder()
-                .content(NEW_COMMENT_CONTENT)
+                .content(command.content())
                 .post(postEntity)
                 .user(userEntity)
                 .build();
@@ -296,7 +296,7 @@ public class CommentServiceTest {
             // given
             UpdateCommentCommand command = () -> UPDATED_CONTENT;
             CommentEntity updatedCommentEntity = CommentEntity.builder()
-                .content(UPDATED_CONTENT)
+                .content(command.content())
                 .post(postEntity)
                 .user(userEntity)
                 .build();

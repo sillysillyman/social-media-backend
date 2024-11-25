@@ -36,7 +36,7 @@ public class PostService {
     public Post createPost(CreatePostCommand createPostCommand, User user) {
         Post post = Post.builder()
             .user(user)
-            .content(createPostCommand.getContent())
+            .content(createPostCommand.content())
             .build();
 
         PostEntity postEntity = postRepository.save(PostEntity.from(post));

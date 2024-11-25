@@ -40,7 +40,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
 
-    private static final String TEST_USERNAME = "testUser";
+    private static final String TEST_USERNAME = "tester";
     private static final String TEST_CONTENT = "Test content";
     private static final Long DEFAULT_ID = 1L;
     private static final Long ANOTHER_ID = 2L;
@@ -142,7 +142,7 @@ class PostServiceTest {
             // given
             CreatePostCommand command = () -> NEW_POST_CONTENT;
             PostEntity savedPostEntity = PostEntity.builder()
-                .content(command.getContent())
+                .content(command.content())
                 .user(userEntity)
                 .build();
 

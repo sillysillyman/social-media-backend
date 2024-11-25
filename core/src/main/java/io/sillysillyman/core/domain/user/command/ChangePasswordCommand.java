@@ -2,9 +2,9 @@ package io.sillysillyman.core.domain.user.command;
 
 public interface ChangePasswordCommand {
 
-    String getCurrentPassword();
+    String currentPassword();
 
-    String getNewPassword();
+    String newPassword();
 
-    String getConfirmNewPassword();
+    String confirmNewPassword();
 }
