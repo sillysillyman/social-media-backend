@@ -28,8 +28,8 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
 @AutoConfigureMockMvc
+@SpringBootTest
 @ActiveProfiles("test")
 class UserControllerTest {
 
@@ -90,8 +90,8 @@ class UserControllerTest {
         em.close();
     }
 
-    @Nested
     @DisplayName("회원가입 API")
+    @Nested
     class Signup {
 
         private static final String REQUEST_BODY = """
@@ -102,8 +102,8 @@ class UserControllerTest {
             }
             """;
 
-        @Test
         @DisplayName("회원가입 성공")
+        @Test
         void given_ValidSignupRequest_when_Signup_then_ReturnCreated() {
             performPost(
                 mockMvc,
@@ -115,8 +115,8 @@ class UserControllerTest {
             );
         }
 
-        @Test
         @DisplayName("중복된 사용자명으로 회원가입 실패")
+        @Test
         void given_DuplicateUsername_when_Signup_then_ReturnBadRequest() {
             performPost(
                 mockMvc,
@@ -128,8 +128,8 @@ class UserControllerTest {
             );
         }
 
-        @Test
         @DisplayName("비밀번호와 비밀번호 확인 불일치로 회원가입 실패")
+        @Test
         void given_PasswordMismatch_when_Signup_then_ReturnBadRequest() {
             performPost(
                 mockMvc,
@@ -142,12 +142,12 @@ class UserControllerTest {
         }
     }
 
-    @Nested
     @DisplayName("사용자 조회 API")
+    @Nested
     class GetUser {
 
-        @Test
         @DisplayName("사용자 조회 성공")
+        @Test
         void given_ExistingUserId_when_GetUser_then_ReturnOkResponse() {
             performGet(
                 mockMvc,
@@ -158,8 +158,8 @@ class UserControllerTest {
             );
         }
 
-        @Test
         @DisplayName("존재하지 않는 사용자 조회 실패")
+        @Test
         void given_NonExistentUserId_when_GetUser_then_ReturnNotFound() {
             performGet(
                 mockMvc,
@@ -171,8 +171,8 @@ class UserControllerTest {
         }
     }
 
-    @Nested
     @DisplayName("사용자의 게시물 조회 API")
+    @Nested
     class GetUserPosts {
 
         @BeforeEach
@@ -194,8 +194,8 @@ class UserControllerTest {
             });
         }
 
-        @Test
         @DisplayName("사용자의 게시물 목록 조회 성공")
+        @Test
         void given_ExistingUserId_when_GetUserPosts_then_ReturnOkResponse() {
             performGet(
                 mockMvc,
@@ -208,8 +208,8 @@ class UserControllerTest {
         }
     }
 
-    @Nested
     @DisplayName("내 게시물 조회 API")
+    @Nested
     class GetMyPosts {
 
         @BeforeEach
@@ -231,8 +231,8 @@ class UserControllerTest {
             });
         }
 
-        @Test
         @DisplayName("내 게시물 목록 조회 성공")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_AuthenticatedUser_when_GetMyPosts_then_ReturnOkResponse() {
             performGet(
@@ -245,8 +245,8 @@ class UserControllerTest {
             );
         }
 
-        @Test
         @DisplayName("인증되지 않은 사용자의 내 게시물 조회 실패")
+        @Test
         void given_UnauthenticatedUser_when_GetMyPosts_then_ReturnUnauthorized() {
             performGet(
                 mockMvc,
@@ -258,8 +258,8 @@ class UserControllerTest {
         }
     }
 
-    @Nested
     @DisplayName("비밀번호 변경 API")
+    @Nested
     class ChangePassword {
 
         private static final String REQUEST_BODY = """
@@ -270,8 +270,8 @@ class UserControllerTest {
             }
             """;
 
-        @Test
         @DisplayName("비밀번호 변경 성공")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_ValidPasswordChangeRequest_when_ChangePassword_then_ReturnNoContent() {
             performPut(
@@ -282,8 +282,8 @@ class UserControllerTest {
             );
         }
 
-        @Test
         @DisplayName("잘못된 현재 비밀번호로 변경 실패")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_InvalidCurrentPassword_when_ChangePassword_then_ReturnBadRequest() {
             performPut(
@@ -296,9 +296,8 @@ class UserControllerTest {
             );
         }
 
-
-        @Test
         @DisplayName("현재 비밀번호와 새 비밀번호가 같을 때 변경 실패")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_SameNewPassword_when_ChangePassword_then_ReturnBadRequest() {
             performPut(
@@ -311,8 +310,8 @@ class UserControllerTest {
             );
         }
 
-        @Test
         @DisplayName("새 비밀번호와 새 비밀번호 확인 불일치로 변경 실패")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_NewPasswordMismatch_when_ChangePassword_then_ReturnBadRequest() {
             performPut(
@@ -325,8 +324,8 @@ class UserControllerTest {
             );
         }
 
-        @Test
         @DisplayName("인증되지 않은 사용자의 비밀번호 변경 실패")
+        @Test
         void given_UnauthenticatedUser_when_ChangePassword_then_ReturnUnauthorized() {
             performPut(
                 mockMvc,
@@ -339,12 +338,12 @@ class UserControllerTest {
         }
     }
 
-    @Nested
     @DisplayName("회원 탈퇴 API")
+    @Nested
     class Withdraw {
 
-        @Test
         @DisplayName("회원 탈퇴 성공")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_AuthenticatedUser_when_Withdraw_then_ReturnNoContent() {
             performDelete(
@@ -363,8 +362,8 @@ class UserControllerTest {
             );
         }
 
-        @Test
         @DisplayName("인증되지 않은 사용자의 회원 탈퇴 실패")
+        @Test
         void given_UnauthenticatedUser_when_Withdraw_then_ReturnUnauthorized() {
             performDelete(
                 mockMvc,

@@ -27,8 +27,8 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
 @AutoConfigureMockMvc
+@SpringBootTest
 @ActiveProfiles("test")
 class PostControllerTest {
 
@@ -87,8 +87,8 @@ class PostControllerTest {
         em.close();
     }
 
-    @Nested
     @DisplayName("게시물 생성 API")
+    @Nested
     class CreatePost {
 
         private static final String REQUEST_BODY = """
@@ -97,10 +97,10 @@ class PostControllerTest {
             }
             """;
 
-        @Test
         @DisplayName("게시물 생성 성공")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-        void given_ValidContent_when_CreatePost_ReturnCreatedResponse() {
+        void given_ValidContent_when_CreatePost_then_ReturnCreatedResponse() {
             performPost(
                 mockMvc,
                 BASE_URL,
@@ -114,8 +114,8 @@ class PostControllerTest {
             );
         }
 
-        @Test
         @DisplayName("인증되지 않은 사용자의 게시물 생성 실패")
+        @Test
         void given_UnauthenticatedUser_when_CreatePost_then_ReturnUnauthorized() {
             performPost(
                 mockMvc,
@@ -127,8 +127,8 @@ class PostControllerTest {
             );
         }
 
+        @DisplayName("빈 내용으로 게시물 생성 실패")
         @Test
-        @DisplayName("null 내용으로 게시물 생성 실패")
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_NullContent_when_CreatePost_then_ReturnBadRequest() {
             performPost(
@@ -142,8 +142,8 @@ class PostControllerTest {
         }
     }
 
-    @Nested
     @DisplayName("게시물 조회 API")
+    @Nested
     class GetPost {
 
         @BeforeEach
@@ -162,8 +162,8 @@ class PostControllerTest {
             });
         }
 
-        @Test
         @DisplayName("게시물 조회 성공")
+        @Test
         void given_ExistingPostId_when_GetPost_then_ReturnOkResponse() {
             performGet(
                 mockMvc,
@@ -176,8 +176,8 @@ class PostControllerTest {
             );
         }
 
-        @Test
         @DisplayName("존재하지 않는 게시물 조회 실패")
+        @Test
         void given_NonExistentPostId_when_GetPost_then_ReturnNotFound() {
             performGet(
                 mockMvc,
@@ -189,8 +189,8 @@ class PostControllerTest {
         }
     }
 
-    @Nested
     @DisplayName("게시물 수정 API")
+    @Nested
     class UpdatePost {
 
         private static final String REQUEST_BODY = """
@@ -221,8 +221,8 @@ class PostControllerTest {
             });
         }
 
-        @Test
         @DisplayName("게시물 수정 성공")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_ValidContent_when_UpdatePost_then_ReturnNoContent() {
             performPut(mockMvc, BASE_URL + '/' + postId, REQUEST_BODY, status().isNoContent());
@@ -234,8 +234,8 @@ class PostControllerTest {
             );
         }
 
-        @Test
         @DisplayName("인증되지 않은 사용자의 게시물 수정 실패")
+        @Test
         void given_UnauthenticatedUser_when_UpdatePost_then_ReturnUnauthorized() {
             performPut(
                 mockMvc,
@@ -247,8 +247,8 @@ class PostControllerTest {
             );
         }
 
-        @Test
         @DisplayName("존재하지 않는 게시물 수정 실패")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_NonExistentPostId_when_UpdatePost_then_ReturnNotFound() {
             performPut(
@@ -261,8 +261,8 @@ class PostControllerTest {
             );
         }
 
-        @Test
         @DisplayName("권한 없는 사용자의 게시물 수정 실패")
+        @Test
         @WithUserDetails(value = "other", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_UnauthorizedUser_when_UpdatePost_then_ReturnForbidden() {
             performPut(
@@ -276,8 +276,8 @@ class PostControllerTest {
         }
     }
 
-    @Nested
     @DisplayName("게시물 삭제 API")
+    @Nested
     class DeletePost {
 
         @BeforeEach
@@ -302,16 +302,16 @@ class PostControllerTest {
             });
         }
 
-        @Test
         @DisplayName("게시물 삭제 성공")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_ValidPostId_when_DeletePost_then_ReturnNoContent() {
             performDelete(mockMvc, BASE_URL + '/' + postId, status().isNoContent());
             performGet(mockMvc, BASE_URL + '/' + postId, status().isNotFound());
         }
 
-        @Test
         @DisplayName("인증되지 않은 사용자의 게시물 삭제 실패")
+        @Test
         void given_UnauthenticatedUser_when_DeletePost_then_ReturnUnauthorized() {
             performDelete(
                 mockMvc,
@@ -322,8 +322,8 @@ class PostControllerTest {
             );
         }
 
-        @Test
         @DisplayName("존재하지 않는 게시물 삭제 실패")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_NonExistentPostId_when_DeletePost_then_ReturnNotFound() {
             performDelete(
@@ -335,8 +335,8 @@ class PostControllerTest {
             );
         }
 
-        @Test
         @DisplayName("권한 없는 사용자의 게시물 삭제 실패")
+        @Test
         @WithUserDetails(value = "other", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_UnauthorizedUser_when_DeletePost_then_ReturnForbidden() {
             performDelete(

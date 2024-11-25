@@ -4,7 +4,7 @@ import static io.sillysillyman.api.util.MockMvcTestUtil.performPost;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.jayway.jsonpath.JsonPath;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.sillysillyman.api.util.MockMvcTestUtil;
 import io.sillysillyman.core.auth.constants.JwtConstants;
 import io.sillysillyman.core.domain.user.UserEntity;
@@ -29,8 +29,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-@SpringBootTest
 @AutoConfigureMockMvc
+@SpringBootTest
 @ActiveProfiles("test")
 class AuthControllerTest {
 
@@ -44,6 +44,9 @@ class AuthControllerTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private EntityManager em;
 
@@ -81,8 +84,8 @@ class AuthControllerTest {
         em.close();
     }
 
-    @Nested
     @DisplayName("로그인 API")
+    @Nested
     class Login {
 
         private static final String REQUEST_BODY = """
@@ -92,8 +95,8 @@ class AuthControllerTest {
             }
             """;
 
-        @Test
         @DisplayName("로그인 성공")
+        @Test
         void given_ValidCredentials_when_Login_then_ReturnTokens() {
             performPost(
                 mockMvc,
@@ -105,8 +108,8 @@ class AuthControllerTest {
             );
         }
 
-        @Test
         @DisplayName("잘못된 비밀번호로 로그인 실패")
+        @Test
         void given_InvalidPassword_when_Login_then_ReturnUnauthorized() {
             performPost(
                 mockMvc,
@@ -118,8 +121,8 @@ class AuthControllerTest {
             );
         }
 
-        @Test
         @DisplayName("존재하지 않는 사용자로 로그인 실패")
+        @Test
         void given_NonExistentUser_when_Login_then_ReturnUnauthorized() {
             performPost(
                 mockMvc,
@@ -132,12 +135,12 @@ class AuthControllerTest {
         }
     }
 
-    @Nested
     @DisplayName("로그아웃 API")
+    @Nested
     class Logout {
 
-        @Test
         @DisplayName("로그아웃 성공")
+        @Test
         @WithUserDetails(value = "tester", setupBefore = TestExecutionEvent.TEST_EXECUTION)
         void given_AuthenticatedUser_when_Logout_then_ReturnNoContent() {
             performPost(
@@ -147,8 +150,8 @@ class AuthControllerTest {
             );
         }
 
-        @Test
         @DisplayName("인증되지 않은 사용자 로그아웃 실패")
+        @Test
         void given_UnauthenticatedUser_when_Logout_then_ReturnUnauthorized() {
             performPost(
                 mockMvc,
@@ -160,8 +163,8 @@ class AuthControllerTest {
         }
     }
 
-    @Nested
     @DisplayName("토큰 갱신 API")
+    @Nested
     class Refresh {
 
         private static final String REQUEST_BODY = """
@@ -182,17 +185,17 @@ class AuthControllerTest {
                     status().isOk()
                 );
 
-                refreshToken = JsonPath.read(
-                    result.getResponse().getContentAsString(),
-                    "$.data.refreshToken"
-                );
+                refreshToken = objectMapper.readTree(result.getResponse().getContentAsString())
+                    .get("data")
+                    .get("refreshToken")
+                    .asText();
             } catch (Exception e) {
                 throw new RuntimeException("토큰 추출 실패", e);
             }
         }
 
-        @Test
         @DisplayName("토큰 갱신 성공")
+        @Test
         void given_ValidRefreshToken_when_Refresh_then_ReturnNewTokens() {
             performPost(
                 mockMvc,
@@ -207,8 +210,8 @@ class AuthControllerTest {
             );
         }
 
-        @Test
         @DisplayName("유효하지 않은 리프레시 토큰으로 갱신 실패")
+        @Test
         void given_InvalidRefreshToken_when_Refresh_then_ReturnUnauthorized() {
             MockMvcTestUtil.performPost(
                 mockMvc,
