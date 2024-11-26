@@ -32,8 +32,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
-    private static final String TEST_USERNAME = "tester";
-    private static final String TEST_PASSWORD = "password1!";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password1!";
     private static final String ENCODED_PASSWORD = "encodedPassword1!";
     private static final Long DEFAULT_ID = 1L;
 
@@ -52,7 +52,7 @@ public class UserServiceTest {
     @BeforeEach
     void setUp() {
         userEntity = UserEntity.builder()
-            .username(TEST_USERNAME)
+            .username(USERNAME)
             .password(ENCODED_PASSWORD)
             .role(UserRole.USER)
             .build();
@@ -61,12 +61,12 @@ public class UserServiceTest {
         user = User.from(userEntity);
     }
 
-    @Nested
     @DisplayName("사용자 ID로 조회")
+    @Nested
     class GetById {
 
-        @Test
         @DisplayName("존재하는 사용자 ID로 조회하면 사용자 반환")
+        @Test
         void given_ExistingUserId_when_GetById_then_ReturnUser() {
             // given
             given(userRepository.findById(DEFAULT_ID)).willReturn(Optional.of(userEntity));
@@ -78,7 +78,7 @@ public class UserServiceTest {
             assertThat(foundUser)
                 .satisfies(user -> {
                     assertThat(user.getId()).isEqualTo(DEFAULT_ID);
-                    assertThat(user.getUsername()).isEqualTo(TEST_USERNAME);
+                    assertThat(user.getUsername()).isEqualTo(USERNAME);
                     assertThat(user.getPassword()).isEqualTo(ENCODED_PASSWORD);
                 });
 
@@ -86,8 +86,8 @@ public class UserServiceTest {
             then(userRepository).shouldHaveNoMoreInteractions();
         }
 
-        @Test
         @DisplayName("존재하지 않는 사용자 ID로 조회하면 예외 발생")
+        @Test
         void given_NonExistentUserId_when_GetById_then_ThrowUserNotFoundException() {
             // given
             given(userRepository.findById(DEFAULT_ID)).willReturn(Optional.empty());
@@ -105,34 +105,33 @@ public class UserServiceTest {
         }
     }
 
-
-    @Nested
     @DisplayName("회원가입")
+    @Nested
     class Signup {
 
-        @Test
         @DisplayName("고유한 사용자명으로 가입 시도하면 가입 성공")
+        @Test
         void given_UniqueUsername_when_Signup_then_ReturnSavedUser() {
             // given
             SignupCommand command = new SignupCommand() {
                 @Override
                 public String username() {
-                    return TEST_USERNAME;
+                    return USERNAME;
                 }
 
                 @Override
                 public String password() {
-                    return TEST_PASSWORD;
+                    return PASSWORD;
                 }
 
                 @Override
                 public String confirmPassword() {
-                    return TEST_PASSWORD;
+                    return PASSWORD;
                 }
             };
 
-            given(userRepository.existsByUsername(TEST_USERNAME)).willReturn(false);
-            given(passwordEncoder.encode(TEST_PASSWORD)).willReturn(ENCODED_PASSWORD);
+            given(userRepository.existsByUsername(USERNAME)).willReturn(false);
+            given(passwordEncoder.encode(PASSWORD)).willReturn(ENCODED_PASSWORD);
             given(userRepository.save(any(UserEntity.class))).willReturn(userEntity);
 
             // when
@@ -141,38 +140,38 @@ public class UserServiceTest {
             // then
             assertThat(savedUser)
                 .satisfies(user -> {
-                    assertThat(user.getUsername()).isEqualTo(TEST_USERNAME);
+                    assertThat(user.getUsername()).isEqualTo(USERNAME);
                     assertThat(user.getPassword()).isEqualTo(ENCODED_PASSWORD);
                     assertThat(user.getRole()).isEqualTo(UserRole.USER);
                 });
 
-            then(userRepository).should().existsByUsername(TEST_USERNAME);
+            then(userRepository).should().existsByUsername(USERNAME);
             then(userRepository).should().save(any(UserEntity.class));
             then(userRepository).shouldHaveNoMoreInteractions();
         }
 
-        @Test
         @DisplayName("중복된 사용자명으로 가입 시도하면 예외 발생")
+        @Test
         void given_DuplicateUsername_when_Signup_then_ThrowDuplicateUsernameException() {
             // given
             SignupCommand command = new SignupCommand() {
                 @Override
                 public String username() {
-                    return TEST_USERNAME;
+                    return USERNAME;
                 }
 
                 @Override
                 public String password() {
-                    return TEST_PASSWORD;
+                    return PASSWORD;
                 }
 
                 @Override
                 public String confirmPassword() {
-                    return TEST_PASSWORD;
+                    return PASSWORD;
                 }
             };
 
-            given(userRepository.existsByUsername(TEST_USERNAME)).willReturn(true);
+            given(userRepository.existsByUsername(USERNAME)).willReturn(true);
 
             // when
             ThrowingCallable when = () -> userService.signup(command);
@@ -182,27 +181,27 @@ public class UserServiceTest {
                 .isInstanceOf(DuplicateUsernameException.class)
                 .hasMessage(UserErrorCode.DUPLICATE_USERNAME.getMessage());
 
-            then(userRepository).should().existsByUsername(TEST_USERNAME);
+            then(userRepository).should().existsByUsername(USERNAME);
             then(userRepository).shouldHaveNoMoreInteractions();
             then(passwordEncoder).shouldHaveNoInteractions();
         }
     }
 
-    @Nested
     @DisplayName("비밀번호 변경")
+    @Nested
     class ChangePassword {
 
         private static final String NEW_PASSWORD = "newPassword1!";
         private static final String ENCODED_NEW_PASSWORD = "encodedNewPassword1!";
 
-        @Test
         @DisplayName("올바른 현재 비밀번호로 변경 시도하면 변경 성공")
+        @Test
         void given_ValidCurrentPassword_when_ChangePassword_then_UpdateSuccessfully() {
             // given
             ChangePasswordCommand command = new ChangePasswordCommand() {
                 @Override
                 public String currentPassword() {
-                    return TEST_PASSWORD;
+                    return PASSWORD;
                 }
 
                 @Override
@@ -216,7 +215,7 @@ public class UserServiceTest {
                 }
             };
 
-            given(passwordEncoder.matches(TEST_PASSWORD, user.getPassword())).willReturn(true);
+            given(passwordEncoder.matches(PASSWORD, user.getPassword())).willReturn(true);
             given(passwordEncoder.encode(NEW_PASSWORD)).willReturn(ENCODED_NEW_PASSWORD);
 
             // when
@@ -225,14 +224,14 @@ public class UserServiceTest {
             // then
             assertThat(user.getPassword()).isEqualTo(ENCODED_NEW_PASSWORD);
 
-            then(passwordEncoder).should().matches(TEST_PASSWORD, ENCODED_PASSWORD);
+            then(passwordEncoder).should().matches(PASSWORD, ENCODED_PASSWORD);
             then(passwordEncoder).should().encode(NEW_PASSWORD);
             then(userRepository).should().save(any(UserEntity.class));
             then(passwordEncoder).shouldHaveNoMoreInteractions();
         }
 
-        @Test
         @DisplayName("잘못된 현재 비밀번호로 변경 시도하면 예외 발생")
+        @Test
         void given_IncorrectCurrentPassword_when_ChangePassword_then_ThrowPasswordMismatchException() {
             // given
             String incorrectPassword = "incorrectPassword";
