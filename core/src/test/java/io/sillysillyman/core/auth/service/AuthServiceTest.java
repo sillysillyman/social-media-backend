@@ -1,14 +1,23 @@
 package io.sillysillyman.core.auth.service;
 
-import static io.sillysillyman.core.domain.user.UserRole.USER;
+import static io.sillysillyman.core.common.constants.TestConstants.ACCESS_TOKEN;
+import static io.sillysillyman.core.common.constants.TestConstants.AUTHORITIES;
+import static io.sillysillyman.core.common.constants.TestConstants.INCORRECT_PASSWORD;
+import static io.sillysillyman.core.common.constants.TestConstants.NEW_ACCESS_TOKEN;
+import static io.sillysillyman.core.common.constants.TestConstants.NEW_REFRESH_TOKEN;
+import static io.sillysillyman.core.common.constants.TestConstants.PASSWORD;
+import static io.sillysillyman.core.common.constants.TestConstants.REFRESH_TOKEN;
+import static io.sillysillyman.core.common.constants.TestConstants.USERNAME;
+import static io.sillysillyman.core.common.fixtures.TestFixtures.createUserEntity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.doReturn;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.doReturn;
 
 import io.sillysillyman.core.auth.CustomUserDetails;
 import io.sillysillyman.core.auth.Token;
@@ -21,11 +30,9 @@ import io.sillysillyman.core.auth.exception.detail.TokenNotFoundException;
 import io.sillysillyman.core.auth.repository.RefreshTokenRepository;
 import io.sillysillyman.core.auth.util.JwtUtil;
 import io.sillysillyman.core.domain.user.UserEntity;
-import io.sillysillyman.core.domain.user.UserRole;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,24 +45,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
-
-    private static final String USERNAME = "username";
-    private static final String PASSWORD = "password";
-    private static final String WRONG_PASSWORD = "wrong_password";
-    private static final String ACCESS_TOKEN = "access_token";
-    private static final String REFRESH_TOKEN = "refresh_token";
-    private static final String NEW_ACCESS_TOKEN = "new_access_token";
-    private static final String NEW_REFRESH_TOKEN = "new_refresh_token";
-    private static final UserRole USER_ROLE = USER;
-    private static final Collection<? extends GrantedAuthority> AUTHORITIES =
-        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
 
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
@@ -73,11 +67,12 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        userEntity = UserEntity.builder()
-            .username(USERNAME)
-            .password(PASSWORD)
-            .role(USER_ROLE)
-            .build();
+        userEntity = createUserEntity();
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     @DisplayName("로그인")
@@ -88,24 +83,16 @@ class AuthServiceTest {
         @Test
         void given_ValidCredentials_when_Login_then_ReturnToken() {
             // given
-            LoginCommand command = new LoginCommand() {
-                @Override
-                public String username() {
-                    return USERNAME;
-                }
-
-                @Override
-                public String password() {
-                    return PASSWORD;
-                }
-            };
+            LoginCommand command = new TestLoginCommand(USERNAME, PASSWORD);
 
             CustomUserDetails userDetails = new CustomUserDetails(userEntity);
-            Authentication authentication =
-                new UsernamePasswordAuthenticationToken(userDetails, null, AUTHORITIES);
 
-            given(authenticationManager.authenticate(any(Authentication.class)))
-                .willReturn(authentication);
+            given(authenticationManager.authenticate(
+                    argThat(auth ->
+                        auth.getPrincipal().equals(USERNAME) && auth.getCredentials().equals(PASSWORD)
+                    )
+                )
+            ).willReturn(new UsernamePasswordAuthenticationToken(userDetails, null, AUTHORITIES));
             given(jwtUtil.generateAccessToken(anyString(), any()))
                 .willReturn(ACCESS_TOKEN);
             given(jwtUtil.generateRefreshToken(anyString(), any()))
@@ -125,17 +112,7 @@ class AuthServiceTest {
         @Test
         void given_InvalidCredentials_when_Login_then_ThrowAuthenticationFailedException() {
             // given
-            LoginCommand command = new LoginCommand() {
-                @Override
-                public String username() {
-                    return USERNAME;
-                }
-
-                @Override
-                public String password() {
-                    return WRONG_PASSWORD;
-                }
-            };
+            LoginCommand command = new TestLoginCommand(USERNAME, INCORRECT_PASSWORD);
 
             given(authenticationManager.authenticate(any(Authentication.class)))
                 .willThrow(new BadCredentialsException("Bad credentials"));
@@ -148,20 +125,31 @@ class AuthServiceTest {
                 .isInstanceOf(AuthenticationFailedException.class)
                 .hasMessage(AuthErrorCode.AUTHENTICATION_FAILED.getMessage());
         }
+
+        private record TestLoginCommand(String username, String password) implements LoginCommand {
+
+        }
     }
 
     @DisplayName("로그아웃")
     @Nested
     class Logout {
 
+        private CustomUserDetails userDetails;
+        private Authentication authentication;
+        private SecurityContext securityContext;
+
+        @BeforeEach
+        void setUp() {
+            userDetails = mock(CustomUserDetails.class);
+            authentication = mock(Authentication.class);
+            securityContext = mock(SecurityContext.class);
+        }
+
         @DisplayName("로그아웃 성공")
         @Test
         void given_AuthenticatedUser_when_Logout_then_ClearSecurityContextAndDeleteRefreshToken() {
             // given
-            CustomUserDetails userDetails = mock(CustomUserDetails.class);
-            Authentication authentication = mock(Authentication.class);
-            SecurityContext securityContext = mock(SecurityContext.class);
-
             given(userDetails.getUsername()).willReturn(USERNAME);
             given(authentication.getPrincipal()).willReturn(userDetails);
             given(securityContext.getAuthentication()).willReturn(authentication);

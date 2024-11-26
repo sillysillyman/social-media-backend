@@ -1,5 +1,21 @@
 package io.sillysillyman.core.domain.comment.service;
 
+import static io.sillysillyman.core.common.constants.TestConstants.ANOTHER_COMMENT_ID;
+import static io.sillysillyman.core.common.constants.TestConstants.ANOTHER_POST_ID;
+import static io.sillysillyman.core.common.constants.TestConstants.COMMENT_ID;
+import static io.sillysillyman.core.common.constants.TestConstants.CONTENT;
+import static io.sillysillyman.core.common.constants.TestConstants.DEFAULT_PAGE_SIZE;
+import static io.sillysillyman.core.common.constants.TestConstants.FIRST_PAGE_NUMBER;
+import static io.sillysillyman.core.common.constants.TestConstants.NON_EXISTENT_ID;
+import static io.sillysillyman.core.common.constants.TestConstants.POST_ID;
+import static io.sillysillyman.core.common.constants.TestConstants.SECOND_PAGE_NUMBER;
+import static io.sillysillyman.core.common.constants.TestConstants.UPDATED_CONTENT;
+import static io.sillysillyman.core.common.constants.TestConstants.USER_ID;
+import static io.sillysillyman.core.common.fixtures.TestFixtures.createCommentEntity;
+import static io.sillysillyman.core.common.fixtures.TestFixtures.createPostEntity;
+import static io.sillysillyman.core.common.fixtures.TestFixtures.createUnauthorizedUserEntity;
+import static io.sillysillyman.core.common.fixtures.TestFixtures.createUserEntity;
+import static io.sillysillyman.core.common.utils.TestUtils.assertPageProperties;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,16 +53,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class CommentServiceTest {
-
-    private static final String TEST_USERNAME = "tester";
-    private static final String TEST_CONTENT = "Test content";
-    private static final Long DEFAULT_ID = 1L;
-    private static final Long ANOTHER_ID = 2L;
-    private static final Long NON_EXISTENT_ID = 999L;
 
     @Mock
     private CommentRepository commentRepository;
@@ -59,266 +68,216 @@ public class CommentServiceTest {
 
     private User user;
     private Post post;
-    private Comment comment;
     private UserEntity userEntity;
     private PostEntity postEntity;
     private CommentEntity commentEntity;
 
     @BeforeEach
     void setUp() {
-        userEntity = UserEntity.builder()
-            .username(TEST_USERNAME)
-            .build();
-        ReflectionTestUtils.setField(userEntity, "id", DEFAULT_ID);
-
-        postEntity = PostEntity.builder()
-            .content(TEST_CONTENT)
-            .user(userEntity)
-            .build();
-        ReflectionTestUtils.setField(postEntity, "id", DEFAULT_ID);
-
-        commentEntity = CommentEntity.builder()
-            .content(TEST_CONTENT)
-            .post(postEntity)
-            .user(userEntity)
-            .build();
-        ReflectionTestUtils.setField(commentEntity, "id", DEFAULT_ID);
+        userEntity = createUserEntity();
+        postEntity = createPostEntity(userEntity);
+        commentEntity = createCommentEntity(postEntity, userEntity);
 
         user = User.from(userEntity);
         post = Post.from(postEntity);
-        comment = Comment.from(commentEntity);
     }
 
-    private void verifyRepositoryFindById(Long commentId) {
-        then(commentRepository).should().findById(commentId);
-        then(commentRepository).shouldHaveNoMoreInteractions();
-    }
-
-    private User createUnauthorizedUser() {
-        UserEntity unauthorizedUserEntity = UserEntity.builder()
-            .username("unauthorizedUser")
-            .build();
-        ReflectionTestUtils.setField(unauthorizedUserEntity, "id", ANOTHER_ID);
-        return User.from(unauthorizedUserEntity);
-    }
-
-    @Nested
     @DisplayName("댓글 생성")
+    @Nested
     class CreateComment {
 
-        private static final String NEW_COMMENT_CONTENT = "New comment content";
-
-        @Test
         @DisplayName("유효한 요청으로 댓글 생성")
-        void given_ValidCommentRequest_when_CreateComment_then_CommentSavedSuccessfully() {
+        @Test
+        void given_ValidCommand_when_CreateComment_then_ReturnSavedComment() {
             // given
-            CreateCommentCommand command = () -> NEW_COMMENT_CONTENT;
+            CreateCommentCommand command = () -> CONTENT;
 
-            CommentEntity savedCommentEntity = CommentEntity.builder()
-                .content(command.content())
-                .post(postEntity)
-                .user(userEntity)
-                .build();
-            ReflectionTestUtils.setField(savedCommentEntity, "id", DEFAULT_ID);
+            CommentEntity savedCommentEntity = createCommentEntity(postEntity, userEntity);
 
-            given(postService.getById(postEntity.getId())).willReturn(post);
+            given(postService.getById(POST_ID)).willReturn(post);
             given(commentRepository.save(any(CommentEntity.class))).willReturn(savedCommentEntity);
 
             // when
-            Comment comment = commentService.createComment(postEntity.getId(), command, user);
+            Comment comment = commentService.createComment(POST_ID, command, user);
 
             // then
-            assertThat(comment.getContent()).isEqualTo(NEW_COMMENT_CONTENT);
-            assertThat(comment.getPost().getId()).isEqualTo(post.getId());
-            assertThat(comment.getUser().getId()).isEqualTo(user.getId());
+            assertThat(comment.getContent()).isEqualTo(CONTENT);
+            assertThat(comment.getPost().getId()).isEqualTo(POST_ID);
+            assertThat(comment.getUser().getId()).isEqualTo(USER_ID);
 
             then(commentRepository).should().save(any(CommentEntity.class));
             then(commentRepository).shouldHaveNoMoreInteractions();
         }
     }
 
-    @Nested
     @DisplayName("댓글 목록 조회")
+    @Nested
     class GetComments {
 
-        private static final String FIRST_COMMENT = "1st comment";
-        private static final String SECOND_COMMENT = "2nd comment";
-        private static final String SIXTH_COMMENT = "6th comment";
-        private static final String SEVENTH_COMMENT = "7th comment";
-        private static final int DEFAULT_PAGE_SIZE = 10;
+        private static final String OLDER_COMMENT_CONTENT = "older comment content";
+        private static final String NEWER_COMMENT_CONTENT = "newer comment content";
+        private static final String SECOND_PAGE_OLDER_COMMENT_CONTENT = "second page older comment content";
+        private static final String SECOND_PAGE_NEWER_COMMENT_CONTENT = "second page newer comment content";
 
+        @DisplayName("게시물의 댓글 목록 조회")
         @Test
-        @DisplayName("게시글의 댓글 목록을 페이지네이션과 함께 조회")
-        void given_PostWithComments_when_GetComments_then_ReturnPaginatedComments() {
+        void given_PostWithComments_when_GetComments_then_ReturnPageOfComments() {
             // given
-            Pageable pageable = PageRequest.of(0, DEFAULT_PAGE_SIZE);
+            Pageable pageable = PageRequest.of(FIRST_PAGE_NUMBER, DEFAULT_PAGE_SIZE);
+
             List<CommentEntity> commentEntities = List.of(
-                createCommentEntityWithId(FIRST_COMMENT, DEFAULT_ID),
-                createCommentEntityWithId(SECOND_COMMENT, ANOTHER_ID)
+                createCommentEntity(
+                    COMMENT_ID,
+                    OLDER_COMMENT_CONTENT,
+                    postEntity,
+                    userEntity
+                ),
+                createCommentEntity(
+                    ANOTHER_COMMENT_ID,
+                    NEWER_COMMENT_CONTENT,
+                    postEntity,
+                    userEntity
+                )
             );
+
             Page<CommentEntity> commentEntityPage = new PageImpl<>(
                 commentEntities,
                 pageable,
                 commentEntities.size()
             );
 
-            given(commentRepository.findByPostId(post.getId(), pageable))
-                .willReturn(commentEntityPage);
+            given(commentRepository.findByPostId(POST_ID, pageable)).willReturn(commentEntityPage);
 
             // when
-            Page<Comment> commentPage = commentService.getComments(post.getId(), pageable);
+            Page<Comment> commentPage = commentService.getComments(POST_ID, pageable);
 
             // then
-            verifyPage(commentPage, 2, 0, DEFAULT_PAGE_SIZE);
-            verifyCommentContents(commentPage);
-            verifyRepositoryFindByPostId(pageable);
+            assertPageProperties(commentPage, 2, FIRST_PAGE_NUMBER, DEFAULT_PAGE_SIZE, 2,
+                content -> {
+                    assertThat(content.get(0).getContent()).isEqualTo(OLDER_COMMENT_CONTENT);
+                    assertThat(content.get(1).getContent()).isEqualTo(NEWER_COMMENT_CONTENT);
+                    content.forEach(comment -> {
+                            assertThat(comment.getPost().getId()).isEqualTo(POST_ID);
+                            assertThat(comment.getUser().getId()).isEqualTo(USER_ID);
+                        }
+                    );
+                }
+            );
+
+            then(commentRepository).should().findByPostId(POST_ID, pageable);
+            then(commentRepository).shouldHaveNoMoreInteractions();
         }
 
+        @DisplayName("댓글이 없는 게시물의 댓글 목록 조회")
         @Test
-        @DisplayName("댓글이 없는 게시글의 댓글 목록 조회")
         void given_PostWithNoComments_when_GetComments_then_ReturnEmptyPage() {
             // given
-            Pageable pageable = PageRequest.of(0, DEFAULT_PAGE_SIZE);
+            Pageable pageable = PageRequest.of(FIRST_PAGE_NUMBER, DEFAULT_PAGE_SIZE);
+
             Page<CommentEntity> emptyCommentEntityPage = new PageImpl<>(
                 Collections.emptyList(),
                 pageable,
                 0
             );
 
-            given(commentRepository.findByPostId(postEntity.getId(), pageable))
+            given(commentRepository.findByPostId(POST_ID, pageable))
                 .willReturn(emptyCommentEntityPage);
 
             // when
-            Page<Comment> commentPage = commentService.getComments(postEntity.getId(), pageable);
+            Page<Comment> commentPage = commentService.getComments(POST_ID, pageable);
 
             // then
-            assertThat(commentPage.getContent()).isEmpty();
-            assertThat(commentPage.getNumber()).isZero();
-            assertThat(commentPage.getSize()).isEqualTo(DEFAULT_PAGE_SIZE);
-            assertThat(commentPage.getTotalElements()).isZero();
+            assertPageProperties(commentPage, 0, FIRST_PAGE_NUMBER, DEFAULT_PAGE_SIZE, 0);
 
-            then(commentRepository).should().findByPostId(post.getId(), pageable);
+            then(commentRepository).should().findByPostId(POST_ID, pageable);
             then(commentRepository).shouldHaveNoMoreInteractions();
         }
 
+        @DisplayName("게시물의 두 번째 페이지 댓글 목록 조회")
         @Test
-        @DisplayName("두 번째 페이지의 댓글 목록 조회")
-        void given_MultipleComments_when_GetSecondPage_then_ReturnCorrectPageOfComments() {
+        void given_MultipleComments_when_GetSecondPage_then_ReturnSecondPageOfComments() {
             // given
-            Pageable pageable = PageRequest.of(1, 5);
-            List<CommentEntity> commentEntities = List.of(
-                createCommentEntityWithId(SIXTH_COMMENT, DEFAULT_ID),
-                createCommentEntityWithId(SEVENTH_COMMENT, ANOTHER_ID)
-            );
+            Pageable pageable = PageRequest.of(SECOND_PAGE_NUMBER, DEFAULT_PAGE_SIZE);
 
-            commentEntities.forEach(commentEntity ->
-                ReflectionTestUtils.setField(
-                    commentEntity,
-                    "id",
-                    commentEntities.indexOf(commentEntity) + 6L
+            List<CommentEntity> commentEntities = List.of(
+                createCommentEntity(
+                    COMMENT_ID,
+                    SECOND_PAGE_OLDER_COMMENT_CONTENT,
+                    postEntity,
+                    userEntity
+                ),
+                createCommentEntity(
+                    ANOTHER_COMMENT_ID,
+                    SECOND_PAGE_NEWER_COMMENT_CONTENT,
+                    postEntity,
+                    userEntity
                 )
             );
 
-            Page<CommentEntity> commentEntityPage = new PageImpl<>(commentEntities, pageable, 7);
+            Page<CommentEntity> commentEntityPage = new PageImpl<>(commentEntities, pageable, 12);
 
-            given(commentRepository.findByPostId(postEntity.getId(), pageable))
+            given(commentRepository.findByPostId(POST_ID, pageable))
                 .willReturn(commentEntityPage);
 
             // when
-            Page<Comment> commentPage = commentService.getComments(postEntity.getId(), pageable);
+            Page<Comment> commentPage = commentService.getComments(POST_ID, pageable);
 
             // then
-            assertThat(commentPage.getContent()).hasSize(2);
-            assertThat(commentPage.getNumber()).isEqualTo(1);
-            assertThat(commentPage.getSize()).isEqualTo(5);
-            assertThat(commentPage.getTotalElements()).isEqualTo(7);
+            assertPageProperties(commentPage, 2, SECOND_PAGE_NUMBER, DEFAULT_PAGE_SIZE, 12,
+                content -> {
+                    assertThat(content.get(0).getContent()).isEqualTo(
+                        SECOND_PAGE_OLDER_COMMENT_CONTENT
+                    );
+                    assertThat(content.get(1).getContent()).isEqualTo(
+                        SECOND_PAGE_NEWER_COMMENT_CONTENT
+                    );
+                    content.forEach(comment -> {
+                            assertThat(comment.getPost().getId()).isEqualTo(POST_ID);
+                            assertThat(comment.getUser().getId()).isEqualTo(USER_ID);
+                        }
+                    );
+                }
+            );
 
-            assertThat(commentPage.getContent())
-                .satisfies(content -> {
-                    assertThat(content.get(0).getContent()).isEqualTo(SIXTH_COMMENT);
-                    assertThat(content.get(1).getContent()).isEqualTo(SEVENTH_COMMENT);
-                });
-
-            then(commentRepository).should().findByPostId(post.getId(), pageable);
+            then(commentRepository).should().findByPostId(POST_ID, pageable);
             then(commentRepository).shouldHaveNoMoreInteractions();
-        }
-
-        private void verifyRepositoryFindByPostId(Pageable pageable) {
-            then(commentRepository).should().findByPostId(post.getId(), pageable);
-            then(commentRepository).shouldHaveNoMoreInteractions();
-        }
-
-        private void verifyPage(
-            Page<?> page,
-            int expectedSize,
-            int expectedNumber,
-            int expectedPageSize
-        ) {
-            assertThat(page.getContent()).hasSize(expectedSize);
-            assertThat(page.getNumber()).isEqualTo(expectedNumber);
-            assertThat(page.getSize()).isEqualTo(expectedPageSize);
-        }
-
-        private void verifyCommentContents(Page<Comment> response) {
-            assertThat(response.getContent())
-                .satisfies(content -> {
-                    assertThat(content.get(0).getContent()).isEqualTo(FIRST_COMMENT);
-                    assertThat(content.get(1).getContent()).isEqualTo(SECOND_COMMENT);
-                    content.forEach(this::verifyComment);
-                });
-        }
-
-        private void verifyComment(Comment comment) {
-            assertThat(comment.getPost().getId()).isEqualTo(post.getId());
-            assertThat(comment.getUser().getId()).isEqualTo(user.getId());
-        }
-
-        private CommentEntity createCommentEntityWithId(String content, Long id) {
-            CommentEntity newCommentEntity = CommentEntity.builder()
-                .content(content)
-                .post(postEntity)
-                .user(userEntity)
-                .build();
-            ReflectionTestUtils.setField(newCommentEntity, "id", id);
-            return newCommentEntity;
         }
     }
 
-    @Nested
     @DisplayName("댓글 수정")
+    @Nested
     class UpdateComment {
 
-        private static final String UPDATED_CONTENT = "Updated content";
-
+        @DisplayName("댓글 수정 성공")
         @Test
-        @DisplayName("정상적인 댓글 수정")
-        void given_ValidUpdateRequest_when_UpdateComment_then_CommentUpdatedSuccessfully() {
+        void given_ValidCommand_when_UpdateComment_then_CommentUpdatedSuccessfully() {
             // given
             UpdateCommentCommand command = () -> UPDATED_CONTENT;
-            CommentEntity updatedCommentEntity = CommentEntity.builder()
-                .content(command.content())
-                .post(postEntity)
-                .user(userEntity)
-                .build();
-            ReflectionTestUtils.setField(updatedCommentEntity, "id", DEFAULT_ID);
 
-            given(commentRepository.findById(commentEntity.getId()))
-                .willReturn(Optional.of(commentEntity));
+            CommentEntity updatedCommentEntity = createCommentEntity(
+                UPDATED_CONTENT,
+                postEntity,
+                userEntity
+            );
+
+            given(commentRepository.findById(COMMENT_ID)).willReturn(Optional.of(commentEntity));
             given(commentRepository.save(any(CommentEntity.class)))
                 .willReturn(updatedCommentEntity);
 
             // when
-            commentService.updateComment(post.getId(), comment.getId(), command, user);
+            commentService.updateComment(POST_ID, COMMENT_ID, command, user);
             Comment updatedComment = Comment.from(updatedCommentEntity);
 
             // then
             assertThat(updatedComment.getContent()).isEqualTo(UPDATED_CONTENT);
+
             then(commentRepository).should().save(any(CommentEntity.class));
-            verifyRepositoryFindById(comment.getId());
+            then(commentRepository).should().findById(COMMENT_ID);
+            then(commentRepository).shouldHaveNoMoreInteractions();
         }
 
+        @DisplayName("존재하지 않는 댓글 수정 실패")
         @Test
-        @DisplayName("존재하지 않는 댓글 수정 시도")
         void given_NonExistentComment_when_UpdateComment_then_ThrowCommentNotFoundException() {
             // given
             UpdateCommentCommand command = () -> UPDATED_CONTENT;
@@ -326,158 +285,162 @@ public class CommentServiceTest {
             given(commentRepository.findById(NON_EXISTENT_ID)).willReturn(Optional.empty());
 
             // when
-            ThrowingCallable when = () ->
-                commentService.updateComment(postEntity.getId(), NON_EXISTENT_ID, command, user);
+            ThrowingCallable when = () -> commentService.updateComment(
+                POST_ID,
+                NON_EXISTENT_ID,
+                command,
+                user
+            );
 
             // then
             assertThatThrownBy(when)
                 .isInstanceOf(CommentNotFoundException.class)
                 .hasMessage(CommentErrorCode.COMMENT_NOT_FOUND.getMessage());
 
-            verifyRepositoryFindById(NON_EXISTENT_ID);
+            then(commentRepository).should().findById(NON_EXISTENT_ID);
+            then(commentRepository).shouldHaveNoMoreInteractions();
         }
 
+        @DisplayName("권한이 없는 사용자의 댓글 수정 실패")
         @Test
-        @DisplayName("권한이 없는 사용자의 댓글 수정 시도")
         void given_UnauthorizedUser_when_UpdateComment_then_ThrowForbiddenAccessException() {
             // given
             UpdateCommentCommand command = () -> UPDATED_CONTENT;
-            User unauthorizedUser = createUnauthorizedUser();
 
-            given(commentRepository.findById(commentEntity.getId()))
-                .willReturn(Optional.of(commentEntity));
+            UserEntity unauthorizedUserEntity = createUnauthorizedUserEntity();
+            User unauthorizedUser = User.from(unauthorizedUserEntity);
+
+            given(commentRepository.findById(COMMENT_ID)).willReturn(Optional.of(commentEntity));
 
             // when
-            ThrowingCallable when = () ->
-                commentService.updateComment(
-                    postEntity.getId(),
-                    commentEntity.getId(),
-                    command,
-                    unauthorizedUser
-                );
+            ThrowingCallable when = () -> commentService.updateComment(
+                POST_ID,
+                COMMENT_ID,
+                command,
+                unauthorizedUser
+            );
 
             // then
             assertThatThrownBy(when)
                 .isInstanceOf(ForbiddenAccessException.class)
                 .hasMessage(AuthErrorCode.FORBIDDEN_ACCESS.getMessage());
 
-            verifyRepositoryFindById(comment.getId());
+            then(commentRepository).should().findById(COMMENT_ID);
+            then(commentRepository).shouldHaveNoMoreInteractions();
         }
 
+        @DisplayName("다른 게시물의 댓글 수정 실패")
         @Test
-        @DisplayName("다른 게시글의 댓글 수정 시도")
         void given_CommentFromDifferentPost_when_UpdateComment_then_ThrowCommentNotBelongToPostException() {
             // given
             UpdateCommentCommand command = () -> UPDATED_CONTENT;
 
-            PostEntity anotherPostEntity = PostEntity.builder()
-                .content("Another post content")
-                .user(userEntity)
-                .build();
-            ReflectionTestUtils.setField(anotherPostEntity, "id", ANOTHER_ID);
-            Post anotherPost = Post.from(anotherPostEntity);
-
-            given(commentRepository.findById(comment.getId()))
-                .willReturn(Optional.of(commentEntity));
+            given(commentRepository.findById(COMMENT_ID)).willReturn(Optional.of(commentEntity));
 
             // when
-            ThrowingCallable when = () ->
-                commentService.updateComment(anotherPost.getId(), comment.getId(), command, user);
+            ThrowingCallable when = () -> commentService.updateComment(
+                ANOTHER_POST_ID,
+                COMMENT_ID,
+                command,
+                user
+            );
 
             // then
             assertThatThrownBy(when)
                 .isInstanceOf(CommentNotBelongToPostException.class)
                 .hasMessage(CommentErrorCode.COMMENT_NOT_BELONG_TO_POST.getMessage());
 
-            verifyRepositoryFindById(comment.getId());
+            then(commentRepository).should().findById(COMMENT_ID);
+            then(commentRepository).shouldHaveNoMoreInteractions();
         }
     }
 
-    @Nested
     @DisplayName("댓글 삭제")
+    @Nested
     class DeleteComment {
 
+        @DisplayName("댓글 삭제 성공")
         @Test
-        @DisplayName("정상적인 댓글 삭제")
-        void given_ValidComment_when_DeleteComment_then_CommentDeletedSuccessfully() {
+        void given_ExistingComment_when_DeleteComment_then_CommentDeletedSuccessfully() {
             // given
-            given(commentRepository.findById(commentEntity.getId()))
-                .willReturn(Optional.of(commentEntity));
+            given(commentRepository.findById(COMMENT_ID)).willReturn(Optional.of(commentEntity));
 
             // when
-            commentService.deleteComment(post.getId(), comment.getId(), user);
+            commentService.deleteComment(POST_ID, COMMENT_ID, user);
 
             // then
-            verifyRepositoryDelete(comment.getId());
+            then(commentRepository).should().findById(COMMENT_ID);
+            then(commentRepository).should().delete(any(CommentEntity.class));
+            then(commentRepository).shouldHaveNoMoreInteractions();
         }
 
+        @DisplayName("존재하지 않는 댓글 삭제 실패")
         @Test
-        @DisplayName("존재하지 않는 댓글 삭제 시도")
         void given_NonExistentComment_when_DeleteComment_then_ThrowCommentNotFoundException() {
             // given
             given(commentRepository.findById(NON_EXISTENT_ID)).willReturn(Optional.empty());
 
             // when
-            ThrowingCallable when = () ->
-                commentService.deleteComment(post.getId(), NON_EXISTENT_ID, user);
+            ThrowingCallable when = () -> commentService.deleteComment(
+                POST_ID,
+                NON_EXISTENT_ID,
+                user
+            );
 
             // then
             assertThatThrownBy(when)
                 .isInstanceOf(CommentNotFoundException.class)
                 .hasMessage(CommentErrorCode.COMMENT_NOT_FOUND.getMessage());
 
-            verifyRepositoryFindById(NON_EXISTENT_ID);
+            then(commentRepository).should().findById(NON_EXISTENT_ID);
+            then(commentRepository).shouldHaveNoMoreInteractions();
         }
 
-        @Test
         @DisplayName("권한이 없는 사용자의 댓글 삭제 시도")
+        @Test
         void given_UnauthorizedUser_when_DeleteComment_then_ThrowForbiddenAccessException() {
             // given
-            User unauthorizedUser = createUnauthorizedUser();
+            UserEntity unauthorizedUserEntity = createUnauthorizedUserEntity();
+            User unauthorizedUser = User.from(unauthorizedUserEntity);
+
             given(commentRepository.findById(commentEntity.getId()))
                 .willReturn(Optional.of(commentEntity));
 
             // when
-            ThrowingCallable when = () ->
-                commentService.deleteComment(post.getId(), comment.getId(), unauthorizedUser);
+            ThrowingCallable when = () -> commentService.deleteComment(
+                POST_ID,
+                COMMENT_ID,
+                unauthorizedUser
+            );
 
             // then
             assertThatThrownBy(when)
                 .isInstanceOf(ForbiddenAccessException.class)
                 .hasMessage(AuthErrorCode.FORBIDDEN_ACCESS.getMessage());
 
-            verifyRepositoryFindById(comment.getId());
+            then(commentRepository).should().findById(COMMENT_ID);
+            then(commentRepository).shouldHaveNoMoreInteractions();
         }
 
+        @DisplayName("다른 게시물의 댓글 삭제 실패")
         @Test
-        @DisplayName("다른 게시글의 댓글 삭제 시도")
         void given_CommentFromDifferentPost_when_DeleteComment_then_ThrowCommentNotBelongToPostException() {
             // given
-            PostEntity anotherPostEntity = PostEntity.builder()
-                .content(TEST_CONTENT)
-                .user(userEntity)
-                .build();
-            ReflectionTestUtils.setField(anotherPostEntity, "id", ANOTHER_ID);
-            Post anotherPost = Post.from(anotherPostEntity);
-
-            given(commentRepository.findById(comment.getId())).willReturn(
-                Optional.of(commentEntity));
+            given(commentRepository.findById(COMMENT_ID)).willReturn(Optional.of(commentEntity));
 
             // when
-            ThrowingCallable when = () ->
-                commentService.deleteComment(anotherPost.getId(), comment.getId(), user);
+            ThrowingCallable when = () -> commentService.deleteComment(
+                ANOTHER_POST_ID,
+                COMMENT_ID,
+                user
+            );
 
             // then
             assertThatThrownBy(when)
                 .isInstanceOf(CommentNotBelongToPostException.class)
                 .hasMessage(CommentErrorCode.COMMENT_NOT_BELONG_TO_POST.getMessage());
 
-            verifyRepositoryFindById(comment.getId());
-        }
-
-        private void verifyRepositoryDelete(Long commentId) {
-            then(commentRepository).should().findById(commentId);
-            then(commentRepository).should().delete(any(CommentEntity.class));
+            then(commentRepository).should().findById(COMMENT_ID);
             then(commentRepository).shouldHaveNoMoreInteractions();
         }
     }
