@@ -21,7 +21,7 @@ public record SignupRequest(
     String confirmPassword
 ) implements SignupCommand {
 
-    @AssertTrue(message = "confirm new password must match with new password")
+    @AssertTrue(message = "confirm password must match with password")
     private boolean isConfirmPasswordMatching() {
         return Objects.equals(password, confirmPassword);
     }
