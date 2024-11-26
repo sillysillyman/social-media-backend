@@ -27,7 +27,7 @@ public record ChangePasswordRequest(
     }
 
     @AssertTrue(message = "confirm new password must match with new password")
-    private boolean isNewPasswordMatching() {
-        return !Objects.equals(newPassword, confirmNewPassword);
+    private boolean isConfirmNewPasswordMatching() {
+        return Objects.equals(newPassword, confirmNewPassword);
     }
 }
