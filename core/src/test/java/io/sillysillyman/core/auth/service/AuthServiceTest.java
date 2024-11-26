@@ -80,13 +80,13 @@ class AuthServiceTest {
             .build();
     }
 
-    @Nested
     @DisplayName("로그인")
-    class LoginTest {
+    @Nested
+    class Login {
 
-        @Test
         @DisplayName("올바른 인증 정보로 로그인하면 토큰 반환")
-        void given_ValidCredentials_when_Login_thenReturnToken() {
+        @Test
+        void given_ValidCredentials_when_Login_then_ReturnToken() {
             // given
             LoginCommand command = new LoginCommand() {
                 @Override
@@ -121,8 +121,8 @@ class AuthServiceTest {
             then(refreshTokenRepository).should().save(USERNAME, REFRESH_TOKEN);
         }
 
-        @Test
         @DisplayName("잘못된 인증 정보로 로그인하면 예외 발생")
+        @Test
         void given_InvalidCredentials_when_Login_then_ThrowAuthenticationFailedException() {
             // given
             LoginCommand command = new LoginCommand() {
@@ -150,12 +150,12 @@ class AuthServiceTest {
         }
     }
 
-    @Nested
     @DisplayName("로그아웃")
-    class LogoutTest {
+    @Nested
+    class Logout {
 
-        @Test
         @DisplayName("로그아웃 성공")
+        @Test
         void given_AuthenticatedUser_when_Logout_then_ClearSecurityContextAndDeleteRefreshToken() {
             // given
             CustomUserDetails userDetails = mock(CustomUserDetails.class);
@@ -178,12 +178,12 @@ class AuthServiceTest {
         }
     }
 
-    @Nested
     @DisplayName("토큰 재발급")
-    class RefreshTest {
+    @Nested
+    class Refresh {
 
-        @Test
         @DisplayName("유효한 리프레시 토큰으로 새로운 토큰 발급")
+        @Test
         void given_ValidRefreshToken_when_Refresh_then_GenerateNewTokens() {
             // given
             given(jwtUtil.isTokenValid(REFRESH_TOKEN)).willReturn(true);
@@ -206,8 +206,8 @@ class AuthServiceTest {
             then(refreshTokenRepository).should().save(USERNAME, NEW_REFRESH_TOKEN);
         }
 
-        @Test
         @DisplayName("유효하지 않은 리프레시 토큰으로 요청하면 예외 발생")
+        @Test
         void given_InvalidRefreshToken_when_Refresh_then_ThrowInvalidTokenException() {
             // given
             given(jwtUtil.isTokenValid(REFRESH_TOKEN)).willReturn(false);
@@ -221,8 +221,8 @@ class AuthServiceTest {
                 .hasMessage(AuthErrorCode.INVALID_TOKEN.getMessage());
         }
 
-        @Test
         @DisplayName("저장소에 리프레시 토큰이 없으면 예외 발생")
+        @Test
         void given_MissingRefreshToken_when_Refresh_then_ThrowTokenNotFoundException() {
             // given
             given(jwtUtil.isTokenValid(REFRESH_TOKEN)).willReturn(true);
