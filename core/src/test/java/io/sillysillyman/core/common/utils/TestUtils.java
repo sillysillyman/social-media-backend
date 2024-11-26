@@ -1,4 +1,4 @@
-package io.sillysillyman.core.utils;
+package io.sillysillyman.core.common.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -9,6 +9,19 @@ import org.springframework.data.domain.Page;
 public final class TestUtils {
 
     private TestUtils() {
+    }
+
+    public static void assertPageProperties(
+        Page<?> page,
+        int expectedContentSize,
+        int expectedNumber,
+        int expectedPageSize,
+        long expectedTotalElements
+    ) {
+        assertThat(page.getContent()).hasSize(expectedContentSize);
+        assertThat(page.getNumber()).isEqualTo(expectedNumber);
+        assertThat(page.getSize()).isEqualTo(expectedPageSize);
+        assertThat(page.getTotalElements()).isEqualTo(expectedTotalElements);
     }
 
     public static <T> void assertPageProperties(
