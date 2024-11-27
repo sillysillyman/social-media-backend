@@ -116,7 +116,6 @@ class PostServiceTest {
             assertThatThrownBy(when)
                 .isInstanceOf(PostNotFoundException.class)
                 .hasMessage(PostErrorCode.POST_NOT_FOUND.getMessage());
-            ;
 
             then(postRepository).should().findById(NON_EXISTENT_ID);
             then(postRepository).shouldHaveNoMoreInteractions();
